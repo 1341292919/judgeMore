@@ -5,13 +5,13 @@ import (
 	"errors"
 	"fmt"
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"judgeMore/biz/dal/cache"
 	"judgeMore/biz/dal/mysql"
 	"judgeMore/biz/service/model"
 	"judgeMore/pkg/constants"
 	"judgeMore/pkg/crypt"
 	"judgeMore/pkg/errno"
-	"judgeMore/pkg/utils"
 	"strings"
 )
 
@@ -113,10 +113,11 @@ func (svc *UserService) SendEmail(ctx context.Context, user *model.User) error {
 		return err
 	}
 	// 发送邮箱
-	err = utils.MailSendCode(user.Email, code)
-	if err != nil {
-		return err
-	}
+	//err = utils.MailSendCode(user.Email, code)
+	//if err != nil {
+	//	return err
+	//}
+	hlog.Info(code)
 	return nil
 }
 func (svc *UserService) UpdateUser(ctx context.Context, user *model.User) (*model.User, error) {

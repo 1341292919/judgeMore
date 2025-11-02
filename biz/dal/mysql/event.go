@@ -91,6 +91,26 @@ func GetEventInfoByStuId(ctx context.Context, stu_id string) ([]*model.Event, in
 	}
 	return buildEventList(eventInfos), count, err
 }
+func UpdateEventStatus(ctx context.Context, event_id string, status int64) (*model.Event, error) {
+	updateFields := make(map[string]interface{})
+	switch status {
+	case 1:
+		updateFields["material_status"] = "已审核"
+		break
+	case 2:
+		updateFields["material_status"] = "驳回"
+		break
+	}
+	err := db.WithContext(ctx).
+		Table(constants.TableEvent).
+		Where("event_id = ?", event_id).
+		Updates(updateFields).
+		Error
+	if err != nil {
+		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "mysql: failed to update userInfo: %v", err)
+	}
+	return GetEventInfoById(ctx, event_id)
+}
 
 func buildEvent(data *Event) *model.Event {
 	return &model.Event{

@@ -20,6 +20,10 @@ func Register(r *server.Hertz) {
 	{
 		_api := root.Group("/api", _apiMw()...)
 		{
+			_examine := _api.Group("/examine", _examineMw()...)
+			_examine.POST("/materials", append(_updateeventstatusMw(), event.UpdateEventStatus)...)
+		}
+		{
 			_query := _api.Group("/query", _queryMw()...)
 			{
 				_materials := _query.Group("/materials", _materialsMw()...)

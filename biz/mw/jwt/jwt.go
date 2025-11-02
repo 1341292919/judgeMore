@@ -17,6 +17,7 @@ import (
 
 var (
 	identityKey               = constants.ContextUserId
+	TypeKey                   = constants.TypeKey
 	AccessTokenJwtMiddleware  *jwt.HertzJWTMiddleware
 	RefreshTokenJwtMiddleware *jwt.HertzJWTMiddleware
 )
@@ -36,6 +37,7 @@ func AccessTokenJwt() {
 				id := v.Uid
 				return jwt.MapClaims{
 					identityKey: id,
+					TypeKey:     v.Role,
 				}
 			}
 			return jwt.MapClaims{}
@@ -92,6 +94,7 @@ func RefreshTokenJwt() {
 				id := v.Uid
 				return jwt.MapClaims{
 					identityKey: id,
+					TypeKey:     v.Role,
 				}
 			}
 			return jwt.MapClaims{}
@@ -134,7 +137,7 @@ func RefreshTokenJwt() {
 	}
 }
 
-func IsAccessTokenAvailable(ctx context.Context, c *app.RequestContext) error {
+func IsAccessTokenAvailable(ctx context.Context, c *app.RequestContext, rank int) error {
 	claims, err := AccessTokenJwtMiddleware.GetClaimsFromJWT(ctx, c)
 	if err != nil {
 		return errno.AuthNoToken
@@ -167,10 +170,20 @@ func IsAccessTokenAvailable(ctx context.Context, c *app.RequestContext) error {
 	if !AccessTokenJwtMiddleware.Authorizator(identity, ctx, c) { //
 		return errno.AuthInvalid
 	}
-
+	var access int
+	if claims[constants.TypeKey] == "admin" {
+		access = 3
+	} else if claims[constants.TypeKey] == "counselor" {
+		access = 2
+	} else if claims[constants.TypeKey] == "student" {
+		access = 1
+	}
+	if access < rank {
+		return errno.NewErrNo(errno.InternalServiceErrorCode, "only higher token level access")
+	}
 	return nil
 }
-func IsRefreshTokenAvailable(ctx context.Context, c *app.RequestContext) error {
+func IsRefreshTokenAvailable(ctx context.Context, c *app.RequestContext, rank int) error {
 	claims, err := RefreshTokenJwtMiddleware.GetClaimsFromJWT(ctx, c)
 	if err != nil {
 		return errno.AuthNoToken
@@ -204,6 +217,17 @@ func IsRefreshTokenAvailable(ctx context.Context, c *app.RequestContext) error {
 		return errno.AuthInvalid
 	}
 
+	var access int
+	if claims[constants.TypeKey] == "admin" {
+		access = 3
+	} else if claims[constants.TypeKey] == "counselor" {
+		access = 2
+	} else if claims[constants.TypeKey] == "student" {
+		access = 1
+	}
+	if access < rank {
+		return errno.NewErrNo(errno.InternalServiceErrorCode, "only higher token level access")
+	}
 	return nil
 }
 

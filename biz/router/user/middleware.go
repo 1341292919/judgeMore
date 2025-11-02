@@ -49,10 +49,10 @@ func _usersMw() []app.HandlerFunc {
 
 func _queryuserinfoMw() []app.HandlerFunc {
 	// your code...
-	return auth.Auth()
+	return auth.Auth(1)
 }
 
 func _updateuserinfoMw() []app.HandlerFunc {
 	// your code...
-	return auth.Auth()
+	return auth.Auth(1)
 }

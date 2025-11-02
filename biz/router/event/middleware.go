@@ -9,7 +9,7 @@ import (
 
 func rootMw() []app.HandlerFunc {
 	// your code...
-	return auth.Auth()
+	return nil
 }
 
 func _apiMw() []app.HandlerFunc {
@@ -29,12 +29,12 @@ func _eventsMw() []app.HandlerFunc {
 
 func _queryeventMw() []app.HandlerFunc {
 	// your code...
-	return nil
+	return auth.Auth(1)
 }
 
 func _queryeventbystuidfileMw() []app.HandlerFunc {
 	// your code...
-	return nil
+	return auth.Auth(1)
 }
 
 func _updateMw() []app.HandlerFunc {
@@ -49,12 +49,12 @@ func _events0Mw() []app.HandlerFunc {
 
 func _uploadeventMw() []app.HandlerFunc {
 	// your code...
-	return nil
+	return auth.Auth(2)
 }
 
 func _uploadeventfileMw() []app.HandlerFunc {
 	// your code...
-	return nil
+	return auth.Auth(1)
 }
 
 func _materialsMw() []app.HandlerFunc {
@@ -65,4 +65,14 @@ func _materialsMw() []app.HandlerFunc {
 func _materials0Mw() []app.HandlerFunc {
 	// your code...
 	return nil
+}
+
+func _examineMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _updateeventstatusMw() []app.HandlerFunc {
+	// your code...
+	return auth.Auth(2)
 }

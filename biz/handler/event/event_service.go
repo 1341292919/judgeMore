@@ -98,3 +98,25 @@ func QueryEventByStuIdFile(ctx context.Context, c *app.RequestContext) {
 	resp.Base = pack.BuildBaseResp(errno.Success)
 	pack.SendResponse(c, resp)
 }
+
+// UpdateEventStatus .
+// @router /api/examine/materials [GET]
+func UpdateEventStatus(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req event.UpdateEventStatusRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		pack.SendFailResponse(c, errno.NewErrNo(errno.ParamMissingErrorCode, "param missing:"+err.Error()))
+		return
+	}
+
+	resp := new(event.UpdateEventStatusResponse)
+	userInfo, err := service.NewEventService(ctx, c).UpdateEventStatus(req.EventID, req.ExamineStatus)
+	if err != nil {
+		pack.SendFailResponse(c, errno.ConvertErr(err))
+		return
+	}
+	resp.Data = pack.Event(userInfo)
+	resp.Base = pack.BuildBaseResp(errno.Success)
+	pack.SendResponse(c, resp)
+}

@@ -58,7 +58,25 @@ func (svc *EventService) QueryEventByStuId() ([]*model.Event, int64, error) {
 	}
 	return eventInfoList, count, nil
 }
-
+func (svc *EventService) UpdateEventStatus(event_id string, status int64) (*model.Event, error) {
+	// 常规检验
+	exist, err := mysql.IsEventExist(svc.ctx, event_id)
+	if err != nil {
+		return nil, fmt.Errorf("check event exist failed: %w", err)
+	}
+	if !exist {
+		return nil, errno.NewErrNo(errno.ServiceEventExistCode, "event not exist")
+	}
+	// 检验传上来的status
+	if status != 1 && status != 2 {
+		return nil, fmt.Errorf("status should be 1 or 2")
+	}
+	info, err := mysql.UpdateEventStatus(svc.ctx, event_id, status)
+	if err != nil {
+		return nil, fmt.Errorf("update event status failed: %w", err)
+	}
+	return info, nil
+}
 func (svc *EventService) UploadEventFile(file *multipart.FileHeader) (string, error) {
 	stu_id := GetUserIDFromContext(svc.c)
 	// 检测文件类型
@@ -127,7 +145,7 @@ func CheckEvent(ctx context.Context, eventInfo *model.Event) error {
 	// 如果找到了符合条件的匹配
 	if bestMatch != nil {
 		eventInfo.RecognizeId = bestMatch.RecognizedEventId
-		eventInfo.AwardLevel = bestMatch.RecognizedLevel
+		eventInfo.EventLevel = bestMatch.RecognizedLevel
 	} else {
 		return errno.NewErrNo(errno.InternalServiceErrorCode, "reward not match")
 	}

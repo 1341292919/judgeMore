@@ -34,9 +34,18 @@ struct QueryEventByStuIdResponse{
      1: required model.BaseResp base,
      2: required model.EventList data,
 }
+struct UpdateEventStatusRequest{
+    1: required string event_id,
+    2: required i64 examine_status,
+}
+struct UpdateEventStatusResponse{
+     1: required model.BaseResp base,
+     2: required model.Event data,
+}
 service EventService{
     UploadEventFileResponse UploadEventFile(1: UploadEventFileRequest req) (api.post = "/api/update/materials/file"),
     UploadEventResponse UploadEvent(1: UploadEventRequest req) (api.post = "/api/update/materials/auto"),
     QueryEventResponse QueryEvent(1: QueryEventRequest req) (api.get = "/api/query/materials/single"),
     QueryEventByStuIdResponse QueryEventByStuIdFile(1: QueryEventByStuIdRequest req) (api.get = "/api/query/materials/stu"),
+    UpdateEventStatusResponse UpdateEventStatus(1: UpdateEventStatusRequest req) (api.post = "/api/examine/materials"),
 }

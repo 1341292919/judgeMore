@@ -9,19 +9,19 @@ import (
 	"judgeMore/pkg/errno"
 )
 
-func Auth() []app.HandlerFunc {
+func Auth(rank int) []app.HandlerFunc {
 	//为了有扩展性
 	return append(make([]app.HandlerFunc, 0),
-		DoubleTokenAuthFunc(),
+		DoubleTokenAuthFunc(rank),
 	)
 }
 
-func DoubleTokenAuthFunc() app.HandlerFunc {
+func DoubleTokenAuthFunc(rank int) app.HandlerFunc {
 	return func(ctx context.Context, c *app.RequestContext) {
-		Aerr := jwt.IsAccessTokenAvailable(ctx, c)
+		Aerr := jwt.IsAccessTokenAvailable(ctx, c, rank)
 		if Aerr != nil {
 			if errors.Is(Aerr, errno.AuthAccessExpired) {
-				Rerr := jwt.IsRefreshTokenAvailable(ctx, c)
+				Rerr := jwt.IsRefreshTokenAvailable(ctx, c, rank)
 				if Rerr != nil {
 					pack.SendFailResponse(c, errno.ConvertErr(Rerr))
 					c.Abort()

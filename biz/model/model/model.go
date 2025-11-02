@@ -782,30 +782,31 @@ type Event struct {
 	// 赛事材料的自增id
 	EventID string `thrift:"event_id,1" form:"event_id" json:"event_id" query:"event_id"`
 	// 关联的学生的用户id
-	UserID string `thrift:"user_id,2" form:"user_id" json:"user_id" query:"user_id"`
+	UserID      string `thrift:"user_id,2" form:"user_id" json:"user_id" query:"user_id"`
+	RecognizeID string `thrift:"recognize_id,3" form:"recognize_id" json:"recognize_id" query:"recognize_id"`
 	// 赛事名称
-	EventName string `thrift:"event_name,3" form:"event_name" json:"event_name" query:"event_name"`
+	EventName string `thrift:"event_name,4" form:"event_name" json:"event_name" query:"event_name"`
 	// 赛事主办方
-	EventOrganizer string `thrift:"event_organizer,4" form:"event_organizer" json:"event_organizer" query:"event_organizer"`
+	EventOrganizer string `thrift:"event_organizer,5" form:"event_organizer" json:"event_organizer" query:"event_organizer"`
 	// 国家级 / 省级 / 校级 / 商业赛事
-	EventLevel string `thrift:"event_level,5" form:"event_level" json:"event_level" query:"event_level"`
+	EventLevel string `thrift:"event_level,6" form:"event_level" json:"event_level" query:"event_level"`
 	// 高 / 中 / 低
-	EventInfluence string `thrift:"event_influence,6" form:"event_influence" json:"event_influence" query:"event_influence"`
+	EventInfluence string `thrift:"event_influence,7" form:"event_influence" json:"event_influence" query:"event_influence"`
 	// 一等奖 / 二等奖 / 三等奖 / 优秀奖等
-	AwardLevel string `thrift:"award_level,7" form:"award_level" json:"award_level" query:"award_level"`
+	AwardLevel string `thrift:"award_level,8" form:"award_level" json:"award_level" query:"award_level"`
 	// 材料上传路径
-	MaterialURL string `thrift:"material_url,8" form:"material_url" json:"material_url" query:"material_url"`
+	MaterialURL string `thrift:"material_url,9" form:"material_url" json:"material_url" query:"material_url"`
 	// 待审核 / 已审核 / 驳回
-	MaterialStatus string `thrift:"material_status,9" form:"material_status" json:"material_status" query:"material_status"`
+	MaterialStatus string `thrift:"material_status,10" form:"material_status" json:"material_status" query:"material_status"`
 	// true - 是 / false - 否
-	AutoExtracted bool   `thrift:"auto_extracted,10" form:"auto_extracted" json:"auto_extracted" query:"auto_extracted"`
-	AwardTime     string `thrift:"award_time,11" form:"award_time" json:"award_time" query:"award_time"`
+	AutoExtracted bool   `thrift:"auto_extracted,11" form:"auto_extracted" json:"auto_extracted" query:"auto_extracted"`
+	AwardTime     string `thrift:"award_time,12" form:"award_time" json:"award_time" query:"award_time"`
 	// 创建时间
-	CreatedAt string `thrift:"created_at,12" form:"created_at" json:"created_at" query:"created_at"`
+	CreatedAt string `thrift:"created_at,13" form:"created_at" json:"created_at" query:"created_at"`
 	// 更新时间
-	UpdatedAt string `thrift:"updated_at,13" form:"updated_at" json:"updated_at" query:"updated_at"`
+	UpdatedAt string `thrift:"updated_at,14" form:"updated_at" json:"updated_at" query:"updated_at"`
 	// 删除时
-	DeletedAt string `thrift:"deleted_at,14" form:"deleted_at" json:"deleted_at" query:"deleted_at"`
+	DeletedAt string `thrift:"deleted_at,15" form:"deleted_at" json:"deleted_at" query:"deleted_at"`
 }
 
 func NewEvent() *Event {
@@ -821,6 +822,10 @@ func (p *Event) GetEventID() (v string) {
 
 func (p *Event) GetUserID() (v string) {
 	return p.UserID
+}
+
+func (p *Event) GetRecognizeID() (v string) {
+	return p.RecognizeID
 }
 
 func (p *Event) GetEventName() (v string) {
@@ -874,18 +879,19 @@ func (p *Event) GetDeletedAt() (v string) {
 var fieldIDToName_Event = map[int16]string{
 	1:  "event_id",
 	2:  "user_id",
-	3:  "event_name",
-	4:  "event_organizer",
-	5:  "event_level",
-	6:  "event_influence",
-	7:  "award_level",
-	8:  "material_url",
-	9:  "material_status",
-	10: "auto_extracted",
-	11: "award_time",
-	12: "created_at",
-	13: "updated_at",
-	14: "deleted_at",
+	3:  "recognize_id",
+	4:  "event_name",
+	5:  "event_organizer",
+	6:  "event_level",
+	7:  "event_influence",
+	8:  "award_level",
+	9:  "material_url",
+	10: "material_status",
+	11: "auto_extracted",
+	12: "award_time",
+	13: "created_at",
+	14: "updated_at",
+	15: "deleted_at",
 }
 
 func (p *Event) Read(iprot thrift.TProtocol) (err error) {
@@ -980,7 +986,7 @@ func (p *Event) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 10:
-			if fieldTypeId == thrift.BOOL {
+			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField10(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -988,7 +994,7 @@ func (p *Event) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 11:
-			if fieldTypeId == thrift.STRING {
+			if fieldTypeId == thrift.BOOL {
 				if err = p.ReadField11(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -1014,6 +1020,14 @@ func (p *Event) Read(iprot thrift.TProtocol) (err error) {
 		case 14:
 			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField14(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 15:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField15(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
@@ -1078,7 +1092,7 @@ func (p *Event) ReadField3(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.EventName = _field
+	p.RecognizeID = _field
 	return nil
 }
 func (p *Event) ReadField4(iprot thrift.TProtocol) error {
@@ -1089,7 +1103,7 @@ func (p *Event) ReadField4(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.EventOrganizer = _field
+	p.EventName = _field
 	return nil
 }
 func (p *Event) ReadField5(iprot thrift.TProtocol) error {
@@ -1100,7 +1114,7 @@ func (p *Event) ReadField5(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.EventLevel = _field
+	p.EventOrganizer = _field
 	return nil
 }
 func (p *Event) ReadField6(iprot thrift.TProtocol) error {
@@ -1111,7 +1125,7 @@ func (p *Event) ReadField6(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.EventInfluence = _field
+	p.EventLevel = _field
 	return nil
 }
 func (p *Event) ReadField7(iprot thrift.TProtocol) error {
@@ -1122,7 +1136,7 @@ func (p *Event) ReadField7(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.AwardLevel = _field
+	p.EventInfluence = _field
 	return nil
 }
 func (p *Event) ReadField8(iprot thrift.TProtocol) error {
@@ -1133,7 +1147,7 @@ func (p *Event) ReadField8(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.MaterialURL = _field
+	p.AwardLevel = _field
 	return nil
 }
 func (p *Event) ReadField9(iprot thrift.TProtocol) error {
@@ -1144,10 +1158,21 @@ func (p *Event) ReadField9(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.MaterialStatus = _field
+	p.MaterialURL = _field
 	return nil
 }
 func (p *Event) ReadField10(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.MaterialStatus = _field
+	return nil
+}
+func (p *Event) ReadField11(iprot thrift.TProtocol) error {
 
 	var _field bool
 	if v, err := iprot.ReadBool(); err != nil {
@@ -1158,7 +1183,7 @@ func (p *Event) ReadField10(iprot thrift.TProtocol) error {
 	p.AutoExtracted = _field
 	return nil
 }
-func (p *Event) ReadField11(iprot thrift.TProtocol) error {
+func (p *Event) ReadField12(iprot thrift.TProtocol) error {
 
 	var _field string
 	if v, err := iprot.ReadString(); err != nil {
@@ -1169,7 +1194,7 @@ func (p *Event) ReadField11(iprot thrift.TProtocol) error {
 	p.AwardTime = _field
 	return nil
 }
-func (p *Event) ReadField12(iprot thrift.TProtocol) error {
+func (p *Event) ReadField13(iprot thrift.TProtocol) error {
 
 	var _field string
 	if v, err := iprot.ReadString(); err != nil {
@@ -1180,7 +1205,7 @@ func (p *Event) ReadField12(iprot thrift.TProtocol) error {
 	p.CreatedAt = _field
 	return nil
 }
-func (p *Event) ReadField13(iprot thrift.TProtocol) error {
+func (p *Event) ReadField14(iprot thrift.TProtocol) error {
 
 	var _field string
 	if v, err := iprot.ReadString(); err != nil {
@@ -1191,7 +1216,7 @@ func (p *Event) ReadField13(iprot thrift.TProtocol) error {
 	p.UpdatedAt = _field
 	return nil
 }
-func (p *Event) ReadField14(iprot thrift.TProtocol) error {
+func (p *Event) ReadField15(iprot thrift.TProtocol) error {
 
 	var _field string
 	if v, err := iprot.ReadString(); err != nil {
@@ -1266,6 +1291,10 @@ func (p *Event) Write(oprot thrift.TProtocol) (err error) {
 			fieldId = 14
 			goto WriteFieldError
 		}
+		if err = p.writeField15(oprot); err != nil {
+			fieldId = 15
+			goto WriteFieldError
+		}
 	}
 	if err = oprot.WriteFieldStop(); err != nil {
 		goto WriteFieldStopError
@@ -1319,10 +1348,10 @@ WriteFieldEndError:
 }
 
 func (p *Event) writeField3(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("event_name", thrift.STRING, 3); err != nil {
+	if err = oprot.WriteFieldBegin("recognize_id", thrift.STRING, 3); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.EventName); err != nil {
+	if err := oprot.WriteString(p.RecognizeID); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -1336,10 +1365,10 @@ WriteFieldEndError:
 }
 
 func (p *Event) writeField4(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("event_organizer", thrift.STRING, 4); err != nil {
+	if err = oprot.WriteFieldBegin("event_name", thrift.STRING, 4); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.EventOrganizer); err != nil {
+	if err := oprot.WriteString(p.EventName); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -1353,10 +1382,10 @@ WriteFieldEndError:
 }
 
 func (p *Event) writeField5(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("event_level", thrift.STRING, 5); err != nil {
+	if err = oprot.WriteFieldBegin("event_organizer", thrift.STRING, 5); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.EventLevel); err != nil {
+	if err := oprot.WriteString(p.EventOrganizer); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -1370,10 +1399,10 @@ WriteFieldEndError:
 }
 
 func (p *Event) writeField6(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("event_influence", thrift.STRING, 6); err != nil {
+	if err = oprot.WriteFieldBegin("event_level", thrift.STRING, 6); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.EventInfluence); err != nil {
+	if err := oprot.WriteString(p.EventLevel); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -1387,10 +1416,10 @@ WriteFieldEndError:
 }
 
 func (p *Event) writeField7(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("award_level", thrift.STRING, 7); err != nil {
+	if err = oprot.WriteFieldBegin("event_influence", thrift.STRING, 7); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.AwardLevel); err != nil {
+	if err := oprot.WriteString(p.EventInfluence); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -1404,10 +1433,10 @@ WriteFieldEndError:
 }
 
 func (p *Event) writeField8(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("material_url", thrift.STRING, 8); err != nil {
+	if err = oprot.WriteFieldBegin("award_level", thrift.STRING, 8); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.MaterialURL); err != nil {
+	if err := oprot.WriteString(p.AwardLevel); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -1421,10 +1450,10 @@ WriteFieldEndError:
 }
 
 func (p *Event) writeField9(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("material_status", thrift.STRING, 9); err != nil {
+	if err = oprot.WriteFieldBegin("material_url", thrift.STRING, 9); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.MaterialStatus); err != nil {
+	if err := oprot.WriteString(p.MaterialURL); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -1438,10 +1467,10 @@ WriteFieldEndError:
 }
 
 func (p *Event) writeField10(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("auto_extracted", thrift.BOOL, 10); err != nil {
+	if err = oprot.WriteFieldBegin("material_status", thrift.STRING, 10); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteBool(p.AutoExtracted); err != nil {
+	if err := oprot.WriteString(p.MaterialStatus); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -1455,10 +1484,10 @@ WriteFieldEndError:
 }
 
 func (p *Event) writeField11(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("award_time", thrift.STRING, 11); err != nil {
+	if err = oprot.WriteFieldBegin("auto_extracted", thrift.BOOL, 11); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.AwardTime); err != nil {
+	if err := oprot.WriteBool(p.AutoExtracted); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -1472,10 +1501,10 @@ WriteFieldEndError:
 }
 
 func (p *Event) writeField12(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("created_at", thrift.STRING, 12); err != nil {
+	if err = oprot.WriteFieldBegin("award_time", thrift.STRING, 12); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.CreatedAt); err != nil {
+	if err := oprot.WriteString(p.AwardTime); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -1489,10 +1518,10 @@ WriteFieldEndError:
 }
 
 func (p *Event) writeField13(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("updated_at", thrift.STRING, 13); err != nil {
+	if err = oprot.WriteFieldBegin("created_at", thrift.STRING, 13); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.UpdatedAt); err != nil {
+	if err := oprot.WriteString(p.CreatedAt); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -1506,10 +1535,10 @@ WriteFieldEndError:
 }
 
 func (p *Event) writeField14(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("deleted_at", thrift.STRING, 14); err != nil {
+	if err = oprot.WriteFieldBegin("updated_at", thrift.STRING, 14); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.DeletedAt); err != nil {
+	if err := oprot.WriteString(p.UpdatedAt); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -1520,6 +1549,23 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 14 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 14 end error: ", p), err)
+}
+
+func (p *Event) writeField15(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("deleted_at", thrift.STRING, 15); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.DeletedAt); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 15 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 15 end error: ", p), err)
 }
 
 func (p *Event) String() string {
