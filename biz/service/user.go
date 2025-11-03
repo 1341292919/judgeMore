@@ -12,6 +12,7 @@ import (
 	"judgeMore/pkg/constants"
 	"judgeMore/pkg/crypt"
 	"judgeMore/pkg/errno"
+	"judgeMore/pkg/utils"
 	"strings"
 )
 
@@ -112,10 +113,10 @@ func (svc *UserService) SendEmail(ctx context.Context, user *model.User) error {
 	if err != nil {
 		return err
 	}
-	//err = utils.MailSendCode(user.Email, code)
-	//if err != nil {
-	//	return err
-	//}
+	err = utils.MailSendCode(user.Email, code)
+	if err != nil {
+		return err
+	}
 	hlog.Info(code)
 	return nil
 }
