@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"judgeMore/biz/dal/cache"
 	"judgeMore/biz/dal/mysql"
 	"judgeMore/biz/service/model"
@@ -117,7 +116,6 @@ func (svc *UserService) SendEmail(ctx context.Context, user *model.User) error {
 	if err != nil {
 		return err
 	}
-	hlog.Info(code)
 	return nil
 }
 func (svc *UserService) UpdateUser(ctx context.Context, user *model.User) (*model.User, error) {
