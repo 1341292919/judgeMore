@@ -33,7 +33,7 @@ services:
     networks:
       - judgeMore
     volumes:
-      - ./config:/app/config:ro  # 挂载配置文件
+      - ../config/:/app/config/
       - ./logs:/app/logs        # 挂载日志目录
     env_file:
       - "./env/app.env"          # 应用环境变量

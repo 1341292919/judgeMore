@@ -17,7 +17,7 @@ FROM alpine
 
 RUN apk update --no-cache && apk add --no-cache ca-certificates tzdata
 ENV TZ=Asia/Shanghai
-ENV service=video
+ENV service=judgemore
 
 WORKDIR /app
 COPY --from=builder /app/output /app/output
