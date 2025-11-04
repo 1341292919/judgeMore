@@ -4,6 +4,6 @@ const (
 	TableUser           = "users"
 	TableEvent          = "student_events"
 	TableReconizedEvent = "recognized_events"
-	TableCollege        = "college"
-	TableMajor          = "major"
+	TableRule           = "event_rules"
+	TableScore          = "integral_results"
 )

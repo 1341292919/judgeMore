@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"github.com/antlabs/strsim"
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"judgeMore/biz/dal/mysql"
 	"judgeMore/biz/service/model"
+	"judgeMore/biz/service/taskqueue"
 	"judgeMore/config"
 	"judgeMore/pkg/constants"
 	"judgeMore/pkg/errno"
@@ -75,6 +77,10 @@ func (svc *EventService) UpdateEventStatus(event_id string, status int64) (*mode
 	if err != nil {
 		return nil, fmt.Errorf("update event status failed: %w", err)
 	}
+	// 将计算积分加入任务队列，异步处理
+	if status == 1 {
+		taskqueue.AddScoreEvent(svc.ctx, constants.EventKey, event_id)
+	}
 	return info, nil
 }
 func (svc *EventService) UploadEventFile(file *multipart.FileHeader) (string, error) {
@@ -86,7 +92,7 @@ func (svc *EventService) UploadEventFile(file *multipart.FileHeader) (string, er
 	}
 	// 识别图片信息
 	// 暂存本地
-	fileName := fmt.Sprintf("%s_%s", stu_id, time.Now())
+	fileName := fmt.Sprintf("%v_%v", stu_id, time.Now().Unix())
 	err = oss.SaveFile(file, constants.StorePath, fileName)
 	if err != nil {
 		return "", fmt.Errorf("save file failed: %w", err)
@@ -96,11 +102,15 @@ func (svc *EventService) UploadEventFile(file *multipart.FileHeader) (string, er
 	if err != nil {
 		return "", fmt.Errorf("call glm4v with image failed: %w", err)
 	}
+	hlog.Info(Info)
+	if Info.Success == constants.AIErrorMessage {
+		return "", fmt.Errorf("image not a award or certificate")
+	}
 	eventInfo := &model.Event{
 		Uid:            stu_id,
 		EventName:      Info.EventName,
 		EventOrganizer: Info.EventSponsor,
-		AwardLevel:     Info.AwardLevel,
+		AwardContent:   Info.AwardLevel,
 		AwardTime:      Info.EventTime,
 		AutoExtracted:  true,
 	}
@@ -131,7 +141,6 @@ func CheckEvent(ctx context.Context, eventInfo *model.Event) error {
 	const minSimilarity = 0.5
 	var bestMatch *mysql.RecognizedEvent
 	var highestSimilarity float64
-
 	// 遍历所有事件，计算相似度
 	for _, v := range wholeEvent {
 		similarity := strsim.Compare(v.RecognizedEventName, eventInfo.EventName)
@@ -141,14 +150,14 @@ func CheckEvent(ctx context.Context, eventInfo *model.Event) error {
 			bestMatch = v
 		}
 	}
-
 	// 如果找到了符合条件的匹配
 	if bestMatch != nil {
 		eventInfo.RecognizeId = bestMatch.RecognizedEventId
-		eventInfo.EventLevel = bestMatch.RecognizedLevel
+		eventInfo.EventLevel = bestMatch.RecognizedLevel                     //直接根据认定赛事表来确定，可以不用做匹配
+		eventInfo.AwardLevel = utils.AppraisalReward(eventInfo.AwardContent) //这里再做一次模糊鉴定
 	} else {
 		return errno.NewErrNo(errno.InternalServiceErrorCode, "reward not match")
 	}
-
 	return nil
+
 }
