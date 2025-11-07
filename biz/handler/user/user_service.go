@@ -11,7 +11,6 @@ import (
 	"judgeMore/pkg/errno"
 
 	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	user "judgeMore/biz/model/user"
 )
 
@@ -79,13 +78,17 @@ func Logout(ctx context.Context, c *app.RequestContext) {
 	var req user.LogoutReq
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		pack.SendFailResponse(c, errno.NewErrNo(errno.ParamMissingErrorCode, "param missing:"+err.Error()))
 		return
 	}
-
 	resp := new(user.LogoutResp)
-
-	c.JSON(consts.StatusOK, resp)
+	err = service.NewUserService(ctx, c).Logout()
+	if err != nil {
+		pack.SendFailResponse(c, errno.ConvertErr(err))
+		return
+	}
+	resp.Base = pack.BuildBaseResp(errno.Success)
+	pack.SendResponse(c, resp)
 }
 
 // VerifyEmail .

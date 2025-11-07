@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"judgeMore/biz/dal/mysql"
 	"judgeMore/biz/service/model"
 	"judgeMore/biz/service/taskqueue"
@@ -39,8 +38,6 @@ func (svc *AppealService) NewAppeal(a *model.Appeal) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("query scoreRecord failed: %w", err)
 	}
-	hlog.Info(a.UserId)
-	hlog.Info(resultInfo.UserId)
 	if resultInfo.UserId != a.UserId {
 		return "", fmt.Errorf("user have not permission to appeal the result")
 	}

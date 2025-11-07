@@ -16,6 +16,7 @@ const (
 	AuthAccessExpiredCode                 // 访问令牌过期
 	AuthRefreshExpiredCode                // 刷新令牌过期
 	AuthNoTokenCode                       // 没有 token
+	AuthBlackListTokenCode                // 没有 token
 	AuthMissingTokenCode
 )
 

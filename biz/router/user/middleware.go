@@ -34,7 +34,7 @@ func _loginMw() []app.HandlerFunc {
 
 func _logoutMw() []app.HandlerFunc {
 	// your code...
-	return nil
+	return auth.Auth(1)
 }
 
 func _registerMw() []app.HandlerFunc {

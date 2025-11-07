@@ -160,6 +160,15 @@ func (svc *UserService) SendEmail(user *model.User) error {
 	hlog.Info(code)
 	return nil
 }
+func (svc *UserService) Logout() error {
+	token_id := GetTokenIdFromContext(svc.c)
+	err := cache.PutTokenIdToCache(svc.ctx, token_id)
+	if err != nil {
+		return fmt.Errorf("put tokenId to cache error:%v", err.Error())
+	}
+	return nil
+}
+
 func (svc *UserService) UpdateUser(ctx context.Context, user *model.User) (*model.User, error) {
 	// 由于这里需要对需更新的内容做选择 在svc处处理
 	var updateParams []string

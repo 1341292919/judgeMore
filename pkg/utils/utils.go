@@ -4,8 +4,10 @@ import (
 	"errors"
 	"github.com/bytedance/gopkg/util/logger"
 	"judgeMore/config"
+	"math/rand"
 	"net"
 	"strings"
+	"time"
 )
 
 // GetMysqlDSN 会拼接 mysql 的 DSN
@@ -56,4 +58,20 @@ var m = map[string]int{
 	"user":      2,
 	"interact":  3,
 	"websocket": 4,
+}
+
+// 生成指定位数的随机验证码（字母+数字）
+func GenerateRandomCode(length int) string {
+	// 字符集：26个小写字母 + 26个大写字母 + 10个数字
+	charSet := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+	// 初始化随机数生成器
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	code := make([]byte, length)
+	for i := range code {
+		code[i] = charSet[r.Intn(len(charSet))]
+	}
+
+	return string(code)
 }

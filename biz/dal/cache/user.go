@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"judgeMore/pkg/errno"
-	"math/rand"
+	"judgeMore/pkg/utils"
 	"strings"
 	"time"
 )
@@ -27,7 +27,7 @@ func GetCodeCache(ctx context.Context, key string) (code string, err error) {
 	return storedCode, nil
 }
 func PutCodeToCache(ctx context.Context, key string) (code string, err error) {
-	code = generateRandomCode(6)
+	code = utils.GenerateRandomCode(6)
 	timeNow := time.Now().Unix()
 	value := fmt.Sprintf("%s_%d", code, timeNow)
 	expiration := 2 * time.Minute
@@ -46,18 +46,12 @@ func DeleteCodeCache(ctx context.Context, key string) error {
 	return nil
 }
 
-// 生成指定位数的随机验证码（字母+数字）
-func generateRandomCode(length int) string {
-	// 字符集：26个小写字母 + 26个大写字母 + 10个数字
-	charSet := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-
-	// 初始化随机数生成器
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-
-	code := make([]byte, length)
-	for i := range code {
-		code[i] = charSet[r.Intn(len(charSet))]
+func PutTokenIdToCache(ctx context.Context, key string) error {
+	value := fmt.Sprintf("%s", time.Now().Unix())
+	expiration := 72 * time.Hour // 与refresh-token过期时间一致
+	err := userCa.Set(ctx, key, value, expiration).Err()
+	if err != nil {
+		return errno.NewErrNo(errno.InternalRedisErrorCode, "write token id to cache error:"+err.Error())
 	}
-
-	return string(code)
+	return nil
 }

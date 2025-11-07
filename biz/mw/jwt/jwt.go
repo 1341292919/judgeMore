@@ -5,12 +5,14 @@ import (
 	"encoding/json"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/hertz-contrib/jwt"
+	"judgeMore/biz/dal/cache"
 	"judgeMore/biz/model/user"
 	"judgeMore/biz/pack"
 	"judgeMore/biz/service"
 	"judgeMore/biz/service/model"
 	"judgeMore/pkg/constants"
 	"judgeMore/pkg/errno"
+	"judgeMore/pkg/utils"
 	"log"
 	"time"
 )
@@ -18,6 +20,7 @@ import (
 var (
 	identityKey               = constants.ContextUserId
 	TypeKey                   = constants.TypeKey
+	TokenKey                  = constants.ContextTokenId
 	AccessTokenJwtMiddleware  *jwt.HertzJWTMiddleware
 	RefreshTokenJwtMiddleware *jwt.HertzJWTMiddleware
 )
@@ -38,14 +41,42 @@ func AccessTokenJwt() {
 				return jwt.MapClaims{
 					identityKey: id,
 					TypeKey:     v.Role,
+					TokenKey:    utils.GenerateRandomCode(10),
 				}
 			}
 			return jwt.MapClaims{}
 		},
 
 		IdentityHandler: func(ctx context.Context, c *app.RequestContext) interface{} {
-			claims := jwt.ExtractClaims(ctx, c)
-			return claims[AccessTokenJwtMiddleware.IdentityKey]
+			claims := jwt.ExtractClaims(ctx, c) // 是从 JWT 令牌中提取 claims 的函数
+			log.Printf("claims: %+v", claims)
+
+			// 检查 claims[identityKey] 是否存在
+			userID, exists := claims[identityKey]
+			if !exists {
+				log.Println("claims['userid'] 不存在")
+				return nil
+			}
+			tokenID, exists := claims[TokenKey]
+			if !exists {
+				log.Println("claims['userid'] 不存在")
+				return nil
+			}
+			var u, t string
+			if v, ok := userID.(string); ok {
+				u = v
+			}
+			if v, ok := tokenID.(string); ok {
+				t = v
+			}
+			// 将 userID 存储到上下文中
+			c.Set(constants.ContextUserId, userID)
+			c.Set(constants.ContextTokenId, tokenID)
+			k := &TokenInfo{
+				UserId:  u,
+				TokenId: t,
+			}
+			return k
 		},
 
 		Unauthorized: func(ctx context.Context, c *app.RequestContext, code int, message string) {
@@ -95,6 +126,7 @@ func RefreshTokenJwt() {
 				return jwt.MapClaims{
 					identityKey: id,
 					TypeKey:     v.Role,
+					TokenKey:    utils.GenerateRandomCode(10),
 				}
 			}
 			return jwt.MapClaims{}
@@ -110,9 +142,26 @@ func RefreshTokenJwt() {
 				log.Println("claims['userid'] 不存在")
 				return nil
 			}
+			tokenID, exists := claims[TokenKey]
+			if !exists {
+				log.Println("claims['userid'] 不存在")
+				return nil
+			}
+			var u, t string
+			if v, ok := userID.(string); ok {
+				u = v
+			}
+			if v, ok := tokenID.(string); ok {
+				t = v
+			}
 			// 将 userID 存储到上下文中
 			c.Set(constants.ContextUserId, userID)
-			return userID
+			c.Set(constants.ContextTokenId, tokenID)
+			k := &TokenInfo{
+				UserId:  u,
+				TokenId: t,
+			}
+			return k
 		},
 		Unauthorized: func(ctx context.Context, c *app.RequestContext, code int, message string) {
 			pack.SendFailResponse(c, errno.NewErrNo(int64(code), message))
@@ -162,9 +211,20 @@ func IsAccessTokenAvailable(ctx context.Context, c *app.RequestContext, rank int
 		return errno.NewErrNo(errno.InternalServiceErrorCode, "Token parse error")
 	}
 	c.Set("JWT_PAYLOAD", claims) //将令牌存入上下文
-	identity := AccessTokenJwtMiddleware.IdentityHandler(ctx, c)
-
-	if identity != nil {
+	token := AccessTokenJwtMiddleware.IdentityHandler(ctx, c)
+	var identity string
+	var tokenId string
+	if v, ok := token.(*TokenInfo); ok {
+		identity = v.UserId
+		tokenId = v.TokenId
+	} else {
+		return errno.NewErrNo(errno.InternalServiceErrorCode, "1Token parse error")
+	}
+	exist := cache.IsKeyExist(ctx, tokenId)
+	if exist {
+		return errno.NewErrNo(errno.AuthBlackListTokenCode, "Token is black token")
+	}
+	if identity != "" {
 		c.Set(AccessTokenJwtMiddleware.IdentityKey, identity) //将用户id解析出存入上下文
 	}
 	if !AccessTokenJwtMiddleware.Authorizator(identity, ctx, c) { //
@@ -209,8 +269,20 @@ func IsRefreshTokenAvailable(ctx context.Context, c *app.RequestContext, rank in
 	}
 
 	c.Set("JWT_PAYLOAD", claims)
-	identity := RefreshTokenJwtMiddleware.IdentityHandler(ctx, c)
-	if identity != nil {
+	token := RefreshTokenJwtMiddleware.IdentityHandler(ctx, c)
+	var identity string
+	var tokenId string
+	if v, ok := token.(*TokenInfo); ok {
+		identity = v.UserId
+		tokenId = v.TokenId
+	} else {
+		return errno.NewErrNo(errno.InternalServiceErrorCode, "213Token parse error")
+	}
+	exist := cache.IsKeyExist(ctx, tokenId)
+	if exist {
+		return errno.NewErrNo(errno.AuthBlackListTokenCode, "Token is black token")
+	}
+	if identity != "" {
 		c.Set(RefreshTokenJwtMiddleware.IdentityKey, identity)
 	}
 	if !RefreshTokenJwtMiddleware.Authorizator(identity, ctx, c) {
@@ -235,6 +307,11 @@ func GenerateAccessToken(c *app.RequestContext) {
 	data := service.GetUserIDFromContext(c)
 	tokenString, _, _ := AccessTokenJwtMiddleware.TokenGenerator(data)
 	c.Header("New-Access-Token", tokenString)
+}
+
+type TokenInfo struct {
+	UserId  string
+	TokenId string
 }
 
 func Init() {

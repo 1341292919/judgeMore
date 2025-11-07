@@ -23,6 +23,21 @@ func GetUserIDFromContext(c *app.RequestContext) string {
 
 	return ""
 }
+func GetTokenIdFromContext(c *app.RequestContext) string {
+	if c == nil || c.Keys == nil {
+		return ""
+	}
+	data, exists := c.Keys[constants.ContextTokenId]
+
+	if !exists {
+		return ""
+	}
+	if tokenID, ok := data.(string); ok {
+		return tokenID
+	}
+
+	return ""
+}
 func convertToInt64(value interface{}) (int64, error) {
 	switch v := value.(type) {
 	case int:

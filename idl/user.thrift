@@ -27,7 +27,7 @@ struct LogoutReq {
 }
 
 struct LogoutResp {
-
+        1: required model.BaseResp base,
 }
 // QueryUserInfo
 struct QueryUserInfoRequest {
