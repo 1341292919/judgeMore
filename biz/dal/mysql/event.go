@@ -42,7 +42,7 @@ func CreateNewEvent(ctx context.Context, event *model.Event) (string, error) {
 		Create(&eventInfo).
 		Error
 	if err != nil {
-		return "", err
+		return "", errno.NewErrNo(errno.InternalDatabaseErrorCode, "create event err"+err.Error())
 	}
 	return eventInfo.EventId, nil
 }

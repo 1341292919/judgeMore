@@ -19,7 +19,7 @@ func UploadEventFile(ctx context.Context, c *app.RequestContext) {
 	var req event.UploadEventFileRequest
 	data, err := c.FormFile("file")
 	if err != nil {
-		pack.SendFailResponse(c, errno.NewErrNo(errno.ParamMissingErrorCode, "required file but found not "))
+		pack.SendFailResponse(c, errno.NewErrNo(errno.ParamMissingErrorCode, "required file but found not "+err.Error()))
 		return
 	}
 	err = c.BindAndValidate(&req)

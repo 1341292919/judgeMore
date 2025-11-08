@@ -38,7 +38,7 @@ func CreateUser(ctx context.Context, user *model.User) (string, error) {
 		Create(userInfo).
 		Error
 	if err != nil {
-		return "", err
+		return "", errno.NewErrNo(errno.InternalDatabaseErrorCode, "Create User Error:"+err.Error())
 	}
 	return userInfo.RoleId, nil
 }
@@ -46,11 +46,14 @@ func CreateUser(ctx context.Context, user *model.User) (string, error) {
 // 该函数调用前检验存在性
 func GetUserInfoByRoleId(ctx context.Context, role_id string) (*model.User, error) {
 	var userInfo *User
-	_ = db.WithContext(ctx).
+	err := db.WithContext(ctx).
 		Table(constants.TableUser).
 		Where("role_id = ?", role_id).
 		First(&userInfo).
 		Error
+	if err != nil {
+		return nil, errno.NewErrNo(errno.InternalDatabaseErrorCode, "query user Info error:"+err.Error())
+	}
 	return &model.User{
 		Uid:      userInfo.RoleId,
 		UserName: userInfo.UserName,
@@ -72,7 +75,10 @@ func UpdateUserPassword(ctx context.Context, user *model.User) error {
 		Where("role_id = ?", user.Uid).
 		Update("password", user.Password).
 		Error
-	return err
+	if err != nil {
+		return errno.Errorf(errno.InternalDatabaseErrorCode, "Update User Password"+err.Error())
+	}
+	return nil
 }
 
 func UpdateInfoByRoleId(ctx context.Context, role_id string, element ...string) (*model.User, error) {
@@ -90,11 +96,13 @@ func UpdateInfoByRoleId(ctx context.Context, role_id string, element ...string) 
 			updateFields["grade"] = value
 		}
 	}
-	err := db.WithContext(ctx).
-		Table(constants.TableUser).
-		Where("role_id = ?", role_id).
-		Updates(updateFields).
-		Error
+	// 存在多值更新 以事务提交保证原子性
+	err := db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		return tx.Table(constants.TableUser).
+			Where("role_id = ?", role_id).
+			Updates(updateFields).
+			Error
+	})
 	if err != nil {
 		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "mysql: failed to update userInfo: %v", err)
 	}

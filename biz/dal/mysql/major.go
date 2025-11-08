@@ -58,7 +58,7 @@ func RealCreateMajor(ctx context.Context, m *model.Major) (int64, error) {
 		First(&major).
 		Error
 	if err == nil { //找到了
-		return -1, errors.New("major_name already exists")
+		return -1, errno.NewErrNo(errno.ServiceMajorExistCode, "major_name already exists")
 	} else {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return -1, errno.Errorf(errno.InternalDatabaseErrorCode, "mysql: failed to query major: %v", err)

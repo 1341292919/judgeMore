@@ -30,15 +30,15 @@ func NewUserService(ctx context.Context, c *app.RequestContext) *UserService {
 func (svc *UserService) Login(req *model.User) (*model.User, error) {
 	exist, err := mysql.IsUserExist(svc.ctx, req)
 	if err != nil {
-		return nil, fmt.Errorf("check user exist failed: %w", err)
+		return nil, err
 	}
 	if !exist {
-		return nil, errno.NewErrNo(errno.ServiceUserExistCode, "user not exist")
+		return nil, errno.NewErrNo(errno.ServiceUserNotExistCode, "user not exist")
 	}
 	// 密码检验
 	userInfo, err := mysql.GetUserInfoByRoleId(svc.ctx, req.Uid)
 	if err != nil {
-		return nil, fmt.Errorf("get user Info failed: %w", err)
+		return nil, err
 	}
 	// 激活检验
 	if userInfo.Status == 0 {
@@ -53,7 +53,7 @@ func (svc *UserService) Login(req *model.User) (*model.User, error) {
 func (svc *UserService) Register(req *model.User) (string, error) {
 	exist, err := mysql.IsUserExist(svc.ctx, req)
 	if err != nil {
-		return "", fmt.Errorf("check user exist failed: %w", err)
+		return "", err
 	}
 	if exist {
 		return "", errno.NewErrNo(errno.ServiceUserExistCode, "user already exist")
@@ -65,12 +65,12 @@ func (svc *UserService) Register(req *model.User) (string, error) {
 	//验证邮箱
 	err = svc.SendEmail(req)
 	if err != nil {
-		return "", fmt.Errorf("send email failed: %w", err)
+		return "", err
 	}
 	// 创建账户
 	uid, err := mysql.CreateUser(svc.ctx, req)
 	if err != nil {
-		return "", fmt.Errorf("create user failed: %w", err)
+		return "", err
 	}
 	return uid, nil
 }
@@ -78,14 +78,14 @@ func (svc *UserService) QueryUserInfo(u *model.User) (UserInfo *model.User, err 
 	//存在性检验
 	exist, err := mysql.IsUserExist(svc.ctx, u)
 	if err != nil {
-		return nil, fmt.Errorf("check user exist failed: %w", err)
+		return nil, err
 	}
 	if !exist {
-		return nil, errno.NewErrNo(errno.ServiceUserExistCode, "user not exist")
+		return nil, errno.NewErrNo(errno.ServiceUserNotExistCode, "user not exist")
 	}
 	userInfo, err := mysql.GetUserInfoByRoleId(svc.ctx, u.Uid)
 	if err != nil {
-		return nil, fmt.Errorf("get user Info failed: %w", err)
+		return nil, err
 	}
 	return userInfo, nil
 }
@@ -104,10 +104,10 @@ func (svc *UserService) UpdateUserInfo(u *model.User) (UserInfo *model.User, err
 func (svc *UserService) UpdateUserPassword(u *model.User, c string) error {
 	exist, err := mysql.IsUserExist(svc.ctx, u)
 	if err != nil {
-		return fmt.Errorf("check user exist failed: %w", err)
+		return err
 	}
 	if !exist {
-		return errno.NewErrNo(errno.ServiceUserExistCode, "user not exist")
+		return errno.NewErrNo(errno.ServiceUserNotExistCode, "user not exist")
 	}
 	// 验证code
 	email := fmt.Sprintf("%s%s", u.Uid, constants.EmailSuffix)
@@ -126,7 +126,6 @@ func (svc *UserService) UpdateUserPassword(u *model.User, c string) error {
 	//
 	u.Password, err = crypt.PasswordHash(u.Password)
 	if err != nil {
-
 		return fmt.Errorf("hash password failed: %w", err)
 
 	}
@@ -137,7 +136,7 @@ func (svc *UserService) Email(userInfo *model.User) error {
 	key := fmt.Sprintf("Email:%s", userInfo.Email)
 	exist := cache.IsKeyExist(svc.ctx, key)
 	if exist {
-		return fmt.Errorf("need wait a minute")
+		return errno.NewErrNo(errno.ServiceEmailWaitCode, "wait tow minute")
 	}
 	return svc.SendEmail(userInfo)
 }
@@ -164,7 +163,7 @@ func (svc *UserService) Logout() error {
 	token_id := GetTokenIdFromContext(svc.c)
 	err := cache.PutTokenIdToCache(svc.ctx, token_id)
 	if err != nil {
-		return fmt.Errorf("put tokenId to cache error:%v", err.Error())
+		return err
 	}
 	return nil
 }
@@ -172,7 +171,6 @@ func (svc *UserService) Logout() error {
 func (svc *UserService) UpdateUser(ctx context.Context, user *model.User) (*model.User, error) {
 	// 由于这里需要对需更新的内容做选择 在svc处处理
 	var updateParams []string
-
 	if user.Major != "" {
 		updateParams = append(updateParams, user.Major)
 	}
@@ -187,7 +185,7 @@ func (svc *UserService) UpdateUser(ctx context.Context, user *model.User) (*mode
 		return mysql.UpdateInfoByRoleId(ctx, user.Uid, updateParams...)
 	}
 
-	return nil, errno.Errorf(errno.InternalServiceErrorCode, "no element to update")
+	return nil, nil
 
 }
 
@@ -196,7 +194,7 @@ func (svc *UserService) VerifyEmail(data *model.EmailAuth) (err error) {
 	key := fmt.Sprintf("Email:%s", data.Email)
 	exist := cache.IsKeyExist(svc.ctx, key)
 	if !exist {
-		return errors.New("code expired")
+		return errno.NewErrNo(errno.ServiceCodeExpired, "code expired")
 	}
 	emailParts := strings.Split(data.Email, "@")
 	localPart := emailParts[0]
@@ -206,7 +204,7 @@ func (svc *UserService) VerifyEmail(data *model.EmailAuth) (err error) {
 		return err
 	}
 	if code != data.Code {
-		return errors.New("code not match")
+		return errno.NewErrNo(errno.ServiceCodeNotMatched, "code not match")
 	}
 	// 更新user表的信息
 	err = mysql.ActivateUser(svc.ctx, data.Uid)

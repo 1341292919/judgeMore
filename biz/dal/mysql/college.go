@@ -72,7 +72,7 @@ func RealCreateNewCollege(ctx context.Context, college_name string) (int64, erro
 		First(&college).
 		Error
 	if err == nil { //找到了
-		return -1, errors.New("college_name already exists")
+		return -1, errno.NewErrNo(errno.ServiceCollegeExistCode, "college have exist")
 	} else {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return -1, errno.Errorf(errno.InternalDatabaseErrorCode, "mysql: failed to query college: %v", err)

@@ -182,13 +182,15 @@ func buildScore(r *ScoreResult) *model.ScoreRecord {
 }
 func UpdateResultAppealInfo(ctx context.Context, result_id, appeal_id, status string) error {
 	err := db.WithContext(ctx).
-		Table(constants.TableScore).
-		Where("result_id = ?", result_id).
-		Update("appeal_id", appeal_id).
-		Update("status", status).
-		Error
+		Transaction(func(tx *gorm.DB) error {
+			return tx.Table(constants.TableScore).
+				Where("result_id = ?", result_id).
+				Update("appeal_id", appeal_id).
+				Update("status", status).
+				Error
+		})
 	if err != nil {
-		return err
+		return errno.NewErrNo(errno.InternalDatabaseErrorCode, "UpdateResultAppealInfo : "+err.Error())
 	}
 	return nil
 }

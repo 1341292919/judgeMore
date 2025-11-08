@@ -38,7 +38,6 @@ func Register(ctx context.Context, c *app.RequestContext) {
 	resp.UserID = UserResp
 	resp.Base = pack.BuildBaseResp(errno.Success)
 	pack.SendResponse(c, resp)
-
 }
 
 // Login .

@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"github.com/cloudwego/hertz/pkg/app"
 	"judgeMore/biz/dal/mysql"
 	"judgeMore/biz/service/model"
@@ -24,14 +23,14 @@ func NewScoreService(ctx context.Context, c *app.RequestContext) *ScoreService {
 func (svc *ScoreService) QueryScoreRecordByScoreId(score_id string) (*model.ScoreRecord, error) {
 	exist, err := mysql.IsScoreRecordExist(svc.ctx, score_id)
 	if err != nil {
-		return nil, fmt.Errorf("check score exist failed: %w", err)
+		return nil, err
 	}
 	if !exist {
-		return nil, errno.NewErrNo(errno.ServiceEventExistCode, "Socre Result not exist")
+		return nil, errno.NewErrNo(errno.ServiceRecordNotExistCode, "Socre Result not exist")
 	}
 	recordInfo, err := mysql.QueryScoreRecordByScoreId(svc.ctx, score_id)
 	if err != nil {
-		return nil, fmt.Errorf("get record Info failed: %w", err)
+		return nil, err
 	}
 	return recordInfo, nil
 }
@@ -39,28 +38,28 @@ func (svc *ScoreService) QueryScoreRecordByScoreId(score_id string) (*model.Scor
 func (svc *ScoreService) QueryScoreRecordByEventId(event_id string) (*model.ScoreRecord, error) {
 	exist, err := mysql.IsScoreRecordExist_Event(svc.ctx, event_id)
 	if err != nil {
-		return nil, fmt.Errorf("check score exist failed: %w", err)
+		return nil, err
 	}
 	if !exist {
-		return nil, errno.NewErrNo(errno.ServiceEventExistCode, "Socre Result not exist")
+		return nil, errno.NewErrNo(errno.ServiceRecordNotExistCode, "Socre Result not exist")
 	}
 	recordInfo, err := mysql.QueryScoreRecordByEventId(svc.ctx, event_id)
 	if err != nil {
-		return nil, fmt.Errorf("get record Info failed: %w", err)
+		return nil, err
 	}
 	return recordInfo, nil
 }
 func (svc *ScoreService) QueryScoreRecordByStuId(stu_id string) ([]*model.ScoreRecord, int64, error) {
 	exist, err := mysql.IsUserExist(svc.ctx, &model.User{Uid: stu_id})
 	if err != nil {
-		return nil, -1, fmt.Errorf("check user exist failed: %w", err)
+		return nil, -1, err
 	}
 	if !exist {
 		return nil, -1, errno.NewErrNo(errno.ServiceUserExistCode, "user not exist")
 	}
 	recordInfoList, count, err := mysql.QueryScoreRecordByStuId(svc.ctx, stu_id)
 	if err != nil {
-		return nil, count, fmt.Errorf("get record Info failed: %w", err)
+		return nil, -1, err
 	}
 	return recordInfoList, count, nil
 }
@@ -69,14 +68,14 @@ func (svc *ScoreService) QueryScoreRecordByStuId(stu_id string) ([]*model.ScoreR
 func (svc *ScoreService) ReviseScore(result_id string, score float64) error {
 	exist, err := mysql.IsScoreRecordExist(svc.ctx, result_id)
 	if err != nil {
-		return fmt.Errorf("check score exist failed: %w", err)
+		return err
 	}
 	if !exist {
-		return errno.NewErrNo(errno.ServiceEventExistCode, "Socre Result not exist")
+		return errno.NewErrNo(errno.ServiceRecordNotExistCode, "Socre Result not exist")
 	}
 	err = mysql.UpdatesScore(svc.ctx, result_id, score)
 	if err != nil {
-		return fmt.Errorf("update score failed: %w", err)
+		return err
 	}
 	return nil
 }

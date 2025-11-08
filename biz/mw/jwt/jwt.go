@@ -202,13 +202,13 @@ func IsAccessTokenAvailable(ctx context.Context, c *app.RequestContext, rank int
 	case json.Number:
 		n, err := v.Int64()
 		if err != nil {
-			return errno.NewErrNo(errno.InternalServiceErrorCode, "Token parse error")
+			return errno.NewErrNo(errno.AuthInvalidCode, "Token parse error")
 		}
 		if n < AccessTokenJwtMiddleware.TimeFunc().Unix() {
 			return errno.AuthAccessExpired
 		}
 	default:
-		return errno.NewErrNo(errno.InternalServiceErrorCode, "Token parse error")
+		return errno.NewErrNo(errno.AuthInvalidCode, "Token parse error")
 	}
 	c.Set("JWT_PAYLOAD", claims) //将令牌存入上下文
 	token := AccessTokenJwtMiddleware.IdentityHandler(ctx, c)
@@ -218,7 +218,7 @@ func IsAccessTokenAvailable(ctx context.Context, c *app.RequestContext, rank int
 		identity = v.UserId
 		tokenId = v.TokenId
 	} else {
-		return errno.NewErrNo(errno.InternalServiceErrorCode, "1Token parse error")
+		return errno.NewErrNo(errno.AuthInvalidCode, "Token parse error")
 	}
 	exist := cache.IsKeyExist(ctx, tokenId)
 	if exist {
@@ -239,7 +239,7 @@ func IsAccessTokenAvailable(ctx context.Context, c *app.RequestContext, rank int
 		access = 1
 	}
 	if access < rank {
-		return errno.NewErrNo(errno.InternalServiceErrorCode, "only higher token level access")
+		return errno.NewErrNo(errno.AuthPermissionCode, "only higher token level access")
 	}
 	return nil
 }
@@ -259,13 +259,13 @@ func IsRefreshTokenAvailable(ctx context.Context, c *app.RequestContext, rank in
 	case json.Number:
 		n, err := v.Int64()
 		if err != nil {
-			return errno.NewErrNo(errno.InternalServiceErrorCode, "Token parse error")
+			return errno.NewErrNo(errno.AuthInvalidCode, "Token parse error")
 		}
 		if n < RefreshTokenJwtMiddleware.TimeFunc().Unix() {
 			return errno.AuthRefreshExpired
 		}
 	default:
-		return errno.NewErrNo(errno.InternalServiceErrorCode, "Token parse error")
+		return errno.NewErrNo(errno.AuthInvalidCode, "Token parse error")
 	}
 
 	c.Set("JWT_PAYLOAD", claims)
@@ -276,7 +276,7 @@ func IsRefreshTokenAvailable(ctx context.Context, c *app.RequestContext, rank in
 		identity = v.UserId
 		tokenId = v.TokenId
 	} else {
-		return errno.NewErrNo(errno.InternalServiceErrorCode, "213Token parse error")
+		return errno.NewErrNo(errno.AuthInvalidCode, "Token parse error")
 	}
 	exist := cache.IsKeyExist(ctx, tokenId)
 	if exist {
@@ -298,7 +298,7 @@ func IsRefreshTokenAvailable(ctx context.Context, c *app.RequestContext, rank in
 		access = 1
 	}
 	if access < rank {
-		return errno.NewErrNo(errno.InternalServiceErrorCode, "only higher token level access")
+		return errno.NewErrNo(errno.AuthPermissionCode, "only higher token level access")
 	}
 	return nil
 }

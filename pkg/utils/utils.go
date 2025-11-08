@@ -75,3 +75,10 @@ func GenerateRandomCode(length int) string {
 
 	return string(code)
 }
+
+func VerifyPageParam(page_num, page_size int64) bool {
+	if page_num < 0 || page_size < 0 {
+		return false
+	}
+	return true
+}

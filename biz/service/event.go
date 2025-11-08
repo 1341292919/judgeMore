@@ -32,14 +32,14 @@ func NewEventService(ctx context.Context, c *app.RequestContext) *EventService {
 func (svc *EventService) QueryEventByEventId(event_id string) (*model.Event, error) {
 	exist, err := mysql.IsEventExist(svc.ctx, event_id)
 	if err != nil {
-		return nil, fmt.Errorf("check event exist failed: %w", err)
+		return nil, err
 	}
 	if !exist {
-		return nil, errno.NewErrNo(errno.ServiceEventExistCode, "event not exist")
+		return nil, errno.NewErrNo(errno.ServiceEventNotExistCode, "event not exist")
 	}
 	eventInfo, err := mysql.GetEventInfoById(svc.ctx, event_id)
 	if err != nil {
-		return nil, fmt.Errorf("get user Info failed: %w", err)
+		return nil, err
 	}
 	return eventInfo, nil
 }
@@ -48,14 +48,14 @@ func (svc *EventService) QueryEventByStuId() ([]*model.Event, int64, error) {
 	stu_id := GetUserIDFromContext(svc.c)
 	exist, err := mysql.IsUserExist(svc.ctx, &model.User{Uid: stu_id})
 	if err != nil {
-		return nil, -1, fmt.Errorf("check user exist failed: %w", err)
+		return nil, -1, err
 	}
 	if !exist {
-		return nil, -1, errno.NewErrNo(errno.ServiceUserExistCode, "user not exist")
+		return nil, -1, errno.NewErrNo(errno.ServiceUserNotExistCode, "user not exist")
 	}
 	eventInfoList, count, err := mysql.GetEventInfoByStuId(svc.ctx, stu_id)
 	if err != nil {
-		return nil, count, fmt.Errorf("get event Info failed: %w", err)
+		return nil, count, err
 	}
 	return eventInfoList, count, nil
 }
@@ -66,15 +66,15 @@ func (svc *EventService) UpdateEventStatus(event_id string, status int64) (*mode
 		return nil, fmt.Errorf("check event exist failed: %w", err)
 	}
 	if !exist {
-		return nil, errno.NewErrNo(errno.ServiceEventExistCode, "event not exist")
+		return nil, errno.NewErrNo(errno.ServiceEventNotExistCode, "event not exist")
 	}
 	// 检验传上来的status
 	if status != 1 && status != 2 {
-		return nil, fmt.Errorf("status should be 1 or 2")
+		return nil, errno.NewErrNo(errno.ParamVerifyErrorCode, "status should be 1 or 2")
 	}
 	info, err := mysql.UpdateEventStatus(svc.ctx, event_id, status)
 	if err != nil {
-		return nil, fmt.Errorf("update event status failed: %w", err)
+		return nil, err
 	}
 	// 将计算积分加入任务队列，异步处理
 	if status == 1 {
@@ -103,7 +103,7 @@ func (svc *EventService) UploadEventFile(file *multipart.FileHeader) (string, er
 		return "", fmt.Errorf("call glm4v with image failed: %w", err)
 	}
 	if Info.Success == constants.AIErrorMessage {
-		return "", fmt.Errorf("image not a award or certificate")
+		return "", errno.NewErrNo(errno.ServiceImageNotAwardCode, "image not a award or certificate")
 	}
 	eventInfo := &model.Event{
 		Uid:            stu_id,
@@ -122,11 +122,11 @@ func (svc *EventService) UploadEventFile(file *multipart.FileHeader) (string, er
 	// 存入数据库
 	err = CheckEvent(svc.ctx, eventInfo)
 	if err != nil {
-		return "", fmt.Errorf("check event failed: %w", err)
+		return "", err
 	}
 	event_id, err := mysql.CreateNewEvent(svc.ctx, eventInfo)
 	if err != nil {
-		return "", fmt.Errorf("create new event failed: %w", err)
+		return "", err
 	}
 	return event_id, nil
 }
@@ -135,30 +135,30 @@ func (svc *EventService) UpdateEventLevel(event_id string, level string, appeal_
 	// 材料存在
 	exist, err := mysql.IsEventExist(svc.ctx, event_id)
 	if err != nil {
-		return fmt.Errorf("check event exist failed: %w", err)
+		return err
 	}
 	if !exist {
-		return errno.NewErrNo(errno.ServiceEventExistCode, "event not exist")
+		return errno.NewErrNo(errno.ServiceEventNotExistCode, "event not exist")
 	}
 	// 材料是经过申诉
 	exist, err = mysql.IsAppealExistByAppealId(svc.ctx, appeal_id)
 	if err != nil {
-		return fmt.Errorf("check event appeal failed: %w", err)
+		return err
 	}
 	if !exist {
-		return errno.NewErrNo(errno.ServiceAppealExistCode, "appeal not exist")
+		return errno.NewErrNo(errno.ServiceEventUnChangedCode, "appeal not exist cannot change Event")
 	}
 	// 联查的话要查很远 但目前这样没办法判断申诉是否已完成 后期加上权限的问题会爆发一系列问题
 	recordInfo, err := mysql.QueryScoreRecordByEventId(svc.ctx, event_id)
 	if err != nil {
-		return errno.NewErrNo(errno.InternalDatabaseErrorCode, err.Error())
+		return err
 	}
 	if recordInfo.AppealId != appeal_id {
-		return fmt.Errorf("appeal not match the event")
+		return errno.NewErrNo(errno.ServiceEventUnChangedCode, "appeal not match the event")
 	}
 	err = mysql.UpdateEventLevel(svc.ctx, event_id, level)
 	if err != nil {
-		return fmt.Errorf("update event level failed: %w", err)
+		return err
 	}
 	// 再次异步计算
 	taskqueue.AddSyncScoreTask(svc.ctx, constants.EventKey, event_id)
@@ -189,7 +189,7 @@ func CheckEvent(ctx context.Context, eventInfo *model.Event) error {
 		eventInfo.EventLevel = bestMatch.RecognizedLevel                     //直接根据认定赛事表来确定，可以不用做匹配
 		eventInfo.AwardLevel = utils.AppraisalReward(eventInfo.AwardContent) //这里再做一次模糊鉴定
 	} else {
-		return errno.NewErrNo(errno.InternalServiceErrorCode, "reward not match")
+		return errno.NewErrNo(errno.ServiceEventNotMatchCode, "reward not match")
 	}
 	return nil
 
