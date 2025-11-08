@@ -121,3 +121,95 @@ func ActivateUser(ctx context.Context, uid string) error {
 	}
 	return nil
 }
+// 更新用户状态
+func UpdateUserStatus(ctx context.Context, uid string, status int64) (*model.User, error) {
+	err := db.WithContext(ctx).
+		Table(constants.TableUser).
+		Where("role_id = ?", uid).
+		Update("status", status).
+		Error
+	if err != nil {
+		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "mysql: failed to update user status: %v", err)
+	}
+	return GetUserInfoByRoleId(ctx, uid)
+}
+
+func QueryUserByCondition(ctx context.Context, page_size, page_num int64, req *model.QueryUserRequest) ([]*model.User, int64, error) {
+
+	tx := db.WithContext(ctx).Table(constants.TableUser)
+	// 拼接查询条件（仅当参数有效时添加条件）
+	if req.CollegeId > 0 {
+		tx = tx.Where("college_id = ?", req.CollegeId)
+	}
+	if req.MajorId > 0 {
+		tx = tx.Where("major_id = ?", req.MajorId)
+	}
+	if req.Role != "" {
+		tx = tx.Where("role = ?", strings.TrimSpace(req.Role)) // 去除空格避免无效查询
+	}
+	// 先查询总条数（不带分页的条件计数）
+	var total int64
+	err := tx.Count(&total).Error
+	if err != nil {
+		return nil, 0, errno.Errorf(errno.InternalDatabaseErrorCode, "mysql: failed to count user: %v", err)
+	}
+	// 处理分页（计算偏移量，添加LIMIT和OFFSET）
+	// pageNum从1开始，偏移量 = (pageNum-1) * pageSize
+	offset := (page_num - 1) * page_size
+	tx = tx.Offset(int(offset)).Limit(int(page_size))
+	// 执行分页查询
+	var users []*User
+	err2 := tx.Find(&users).Error
+	if err2 != nil {
+		return nil, 0, errno.Errorf(errno.InternalDatabaseErrorCode, "mysql: failed to query user: %v", err)
+	}
+	return BuildUserInfoList(users), total, nil
+}
+func UpdateUser(ctx context.Context, uid string, updateFields map[string]interface{}) (*model.User, error) {
+
+	err := db.WithContext(ctx).
+		Table(constants.TableUser).
+		Where("uid = ?", uid).
+		Updates(updateFields).
+		Error
+	if err != nil {
+		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "mysql: update user failed: %v", err)
+	}
+	return GetUserInfoByRoleId(ctx, uid)
+}
+func UploadUser(ctx context.Context, uploadFields map[string]interface{}) (*model.User, error) {
+	err := db.WithContext(ctx).
+		Table(constants.TableUser).
+		Create(uploadFields).
+		Error
+	if err != nil {
+		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "mysql: upload user failed: %v", err)
+	}
+	return GetUserInfoByRoleId(ctx, uploadFields["role_id"].(string))
+
+}
+func BuildUserInfo(data *User) *model.User {
+	return &model.User{
+		Uid:      data.RoleId,
+		UserName: data.UserName,
+		Grade:    data.Grade,
+		Major:    data.Major,
+		College:  data.College,
+		Password: data.Password,
+		Status:   data.Status,
+		Email:    data.Email,
+		Role:     data.UserRole,
+		UpdateAT: data.UpdatedAt.Unix(),
+		CreateAT: data.CreatedAt.Unix(),
+		DeleteAT: 0,
+	}
+}
+
+func BuildUserInfoList(data []*User) []*model.User {
+	resp := make([]*model.User, 0)
+	for _, v := range data {
+		s := BuildUserInfo(v)
+		resp = append(resp, s)
+	}
+	return resp
+}

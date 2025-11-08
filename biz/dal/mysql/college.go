@@ -13,12 +13,19 @@ import (
 type GetCollegeInfoFunc func(ctx context.Context) ([]*model.College, int64, error)
 type IsCollegeExistFunc func(ctx context.Context, college_id int64) (bool, error)
 type CreateNewCollegeFunc func(ctx context.Context, college_name string) (int64, error)
+type QueryCollegeByIdFunc func(ctx context.Context, college_id int64) (*model.College, error)
+type DeleteCollegeByIdFunc func(ctx context.Context, collegeId int64) error
+type UpdateCollegeFunc func(ctx context.Context, CollegeId int64, updateFields map[string]interface{}) (*model.College, error)
+
 
 // 对外暴露的函数变量（默认指向真实实现,用于测试）
 var (
 	GetCollegeInfo   GetCollegeInfoFunc   = RealGetCollegeInfo
 	IsCollegeExist   IsCollegeExistFunc   = RealIsCollegeExist
 	CreateNewCollege CreateNewCollegeFunc = RealCreateNewCollege
+	QueryCollegeById  QueryCollegeByIdFunc  = RealQueryCollegeById
+	DeleteCollegeById DeleteCollegeByIdFunc = RealDeleteCollegeById
+	UpdateCollege     UpdateCollegeFunc     = RealUpdateCollege
 )
 
 func RealGetCollegeInfo(ctx context.Context) ([]*model.College, int64, error) {
@@ -32,19 +39,19 @@ func RealGetCollegeInfo(ctx context.Context) ([]*model.College, int64, error) {
 	if err != nil {
 		return nil, -1, errno.Errorf(errno.InternalDatabaseErrorCode, "mysql: failed query college: %v", err)
 	}
-	return buildCollegeInfoList(collegeInfos), count, err
+	return BuildCollegeInfoList(collegeInfos), count, err
 }
 
-func buildCollegeInfo(data *College) *model.College {
+func BuildCollegeInfo(data *College) *model.College {
 	return &model.College{
 		CollegeId:   data.CollegeId,
 		CollegeName: data.CollegeName,
 	}
 }
-func buildCollegeInfoList(data []*College) []*model.College {
+func BuildCollegeInfoList(data []*College) []*model.College {
 	resp := make([]*model.College, 0)
 	for _, v := range data {
-		s := buildCollegeInfo(v)
+		s := BuildCollegeInfo(v)
 		resp = append(resp, s)
 	}
 	return resp
@@ -89,4 +96,43 @@ func RealCreateNewCollege(ctx context.Context, college_name string) (int64, erro
 		return -1, errno.Errorf(errno.InternalDatabaseErrorCode, "mysql: failed to create college: %v", err)
 	}
 	return c.CollegeId, nil
+}
+func RealQueryCollegeById(ctx context.Context, college_id int64) (*model.College, error) {
+	var collegeInfo *College
+
+	err := db.WithContext(ctx).
+		Table(constants.TableCollege).
+		Where("college_id = ?", college_id).
+		First(&collegeInfo).
+		Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) { //没找到了用户不存在
+			return nil, nil
+		}
+		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "mysql: failed to query college: %v", err)
+	}
+	return BuildCollegeInfo(collegeInfo), nil
+}
+
+func RealDeleteCollegeById(ctx context.Context, collegeId int64) error {
+	err := db.WithContext(ctx).
+		Table(constants.TableCollege).
+		Where("college_id = ?", collegeId).
+		Delete(&College{}).
+		Error
+	if err != nil {
+		return errno.Errorf(errno.InternalDatabaseErrorCode, "mysql: failed to delete college: %v", err)
+	}
+	return nil
+}
+
+func RealUpdateCollege(ctx context.Context, CollegeId int64, updateFields map[string]interface{}) (*model.College, error) {
+	err := db.WithContext(ctx).
+		Table(constants.TableCollege).
+		Where("college_id = ?", CollegeId).
+		Updates(updateFields).Error
+	if err != nil {
+		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "mysql: failed to update college: %v", err)
+	}
+	return QueryCollegeById(ctx, CollegeId)
 }
