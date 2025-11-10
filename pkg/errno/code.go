@@ -44,6 +44,8 @@ const (
 	ServiceImageNotAwardCode  // 判断上传的图片不是奖状或者荣誉证书
 	ServiceEventUnChangedCode // 表示未经过申诉，无法直接修改该材料
 	ServiceEventNotMatchCode  // 上传的材料没被认定
+	ServiceNoAuthToDo         // 辅导员试图对不属于自己管辖的学生的材料进行审核或处理申诉
+	ServiceRepeatAction       // 辅导员试图对不属于自己管辖的学生的材料进行审核或处理申诉
 	// resultRecord
 	ServiceRecordNotExistCode // 该记录不存在
 	// appeal
@@ -55,6 +57,8 @@ const (
 	ServiceCollegeNotExistCode
 	ServiceCollegeExistCode
 	ServiceMajorExistCode
+	ServiceMajorNotExistCode
+	ServiceGradeNotExistCode
 )
 
 // 服务错误

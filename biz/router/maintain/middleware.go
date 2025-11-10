@@ -4,6 +4,7 @@ package maintain
 
 import (
 	"github.com/cloudwego/hertz/pkg/app"
+	"judgeMore/biz/router/auth"
 )
 
 func rootMw() []app.HandlerFunc {
@@ -28,7 +29,7 @@ func _querycollegeMw() []app.HandlerFunc {
 
 func _uploadcollegeMw() []app.HandlerFunc {
 	// your code...
-	return nil
+	return auth.Auth(3)
 }
 
 func _querymajorbycollegeidMw() []app.HandlerFunc {
@@ -38,5 +39,20 @@ func _querymajorbycollegeidMw() []app.HandlerFunc {
 
 func _uploadmajorMw() []app.HandlerFunc {
 	// your code...
+	return auth.Auth(3)
+}
+
+func _usersMw() []app.HandlerFunc {
+	// your code...
 	return nil
+}
+
+func _adduserMw() []app.HandlerFunc {
+	// your code...
+	return auth.Auth(3)
+}
+
+func _addadminobjectMw() []app.HandlerFunc {
+	// your code...
+	return auth.Auth(3)
 }

@@ -115,5 +115,22 @@ type Appeal struct {
 	UpdatedAt      time.Time      `gorm:"column:updated_at"`
 	DeletedAt      gorm.DeletedAt `gorm:"index;column:deleted_at"`
 }
-
-// TableName 指定表
+type Relation struct {
+	RelationId string         `gorm:"primaryKey;autoIncrement:true;column:relation_id"`
+	UserId     string         `gorm:"not null;column:user_id"`
+	Major      string         `gorm:"size:100;not null;column:major"`
+	MajorId    string         `gorm:"size:100;not null;column:major_id"`
+	Grade      string         `gorm:"size:50;not null;column:grade"`
+	College    string         `gorm:"size:100;not null;column:college"`
+	CollegeId  string         `gorm:"size:100;not null;column:college_id"`
+	CreatedAt  time.Time      `gorm:"column:created_at"`
+	UpdatedAt  time.Time      `gorm:"column:updated_at"`
+	DeletedAt  gorm.DeletedAt `gorm:"index;column:deleted_at"`
+}
+type AdminRelation struct {
+	AdminId   string         `gorm:"not null;column:admin_id"`
+	StuId     string         `gorm:"not null;column:stu_id"`
+	CreatedAt time.Time      `gorm:"column:created_at"`
+	UpdatedAt time.Time      `gorm:"column:updated_at"`
+	DeletedAt gorm.DeletedAt `gorm:"index;column:deleted_at"`
+}

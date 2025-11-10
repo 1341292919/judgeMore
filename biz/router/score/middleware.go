@@ -29,17 +29,17 @@ func _scoreMw() []app.HandlerFunc {
 
 func _queryscorebyscoreidMw() []app.HandlerFunc {
 	// your code...
-	return nil
+	return auth.Auth(1)
 }
 
 func _queryscorebyeventidMw() []app.HandlerFunc {
 	// your code...
-	return nil
+	return auth.Auth(1)
 }
 
 func _queryscorebystuidMw() []app.HandlerFunc {
 	// your code...
-	return nil
+	return auth.Auth(1)
 }
 
 func _updateMw() []app.HandlerFunc {
@@ -54,5 +54,5 @@ func _score0Mw() []app.HandlerFunc {
 
 func _revisescoreMw() []app.HandlerFunc {
 	// your code...
-	return auth.Auth(1)
+	return auth.Auth(2)
 }

@@ -50,6 +50,13 @@ struct ReviseEventLevelRequest{
 struct ReviseEventLevelResponse{
      1: required model.BaseResp base,
 }
+struct QueryBelongStuEventRequest{
+    1: required string status,
+}
+struct QueryBelongStuEventResponse{
+     1: required model.BaseResp base,
+     2: required model.EventList data,
+}
 service EventService{
     UploadEventFileResponse UploadEventFile(1: UploadEventFileRequest req) (api.post = "/api/update/materials/file"),
     UploadEventResponse UploadEvent(1: UploadEventRequest req) (api.post = "/api/update/materials/auto"),
@@ -57,4 +64,5 @@ service EventService{
     QueryEventByStuIdResponse QueryEventByStuIdFile(1: QueryEventByStuIdRequest req) (api.get = "/api/query/materials/stu"),
     UpdateEventStatusResponse UpdateEventStatus(1: UpdateEventStatusRequest req) (api.post = "/api/examine/materials"),
     ReviseEventLevelResponse ReviseEventLevel(1:ReviseEventLevelRequest req)(api.post="/api/update/event/level"),
+    QueryBelongStuEventResponse QueryBelongStuEvent(1:QueryBelongStuEventRequest req)(api.get = "/api/admin/query/materials/stu"),
 }

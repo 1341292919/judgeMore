@@ -6,4 +6,6 @@ const (
 const (
 	EventKey  = "event"
 	AppealKey = "appeal"
+	StructKey = "structure"
+	UserKey   = "user"
 )

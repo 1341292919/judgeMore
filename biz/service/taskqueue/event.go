@@ -42,6 +42,10 @@ func calculateScore(ctx context.Context, event_id string) error {
 	}
 	// cache处获取rule
 	exist, err = cache.IsRuleExist(ctx)
+	if err != nil {
+		return errno.NewErrNo(errno.InternalRedisErrorCode,
+			fmt.Sprintf("calculateScore: %v", err))
+	}
 	var ruleList []*model.ScoreRule
 	if !exist {
 		// db 载入 redis
@@ -120,6 +124,10 @@ func syncChangedScore(ctx context.Context, event_id string) error {
 	// cache处获取rule
 	exist, err := cache.IsRuleExist(ctx)
 	var ruleList []*model.ScoreRule
+	if err != nil {
+		return errno.NewErrNo(errno.InternalRedisErrorCode,
+			fmt.Sprintf("calculateScore: %v", err))
+	}
 	if !exist {
 		// db 载入 redis
 		ruleList, _, err = mysql.GetScoreRule(ctx)

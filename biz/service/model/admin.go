@@ -10,3 +10,12 @@ type Major struct {
 	MajorName string
 	CollegeId int64
 }
+type Relation struct {
+	RelationId  string
+	UserId      string
+	CollegeId   string
+	CollegeName string
+	MajorName   string
+	MajorId     string
+	Grade       string
+}

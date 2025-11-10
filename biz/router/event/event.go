@@ -20,15 +20,25 @@ func Register(r *server.Hertz) {
 	{
 		_api := root.Group("/api", _apiMw()...)
 		{
+			_admin := _api.Group("/admin", _adminMw()...)
+			{
+				_query := _admin.Group("/query", _queryMw()...)
+				{
+					_materials := _query.Group("/materials", _materialsMw()...)
+					_materials.GET("/stu", append(_querybelongstueventMw(), event.QueryBelongStuEvent)...)
+				}
+			}
+		}
+		{
 			_examine := _api.Group("/examine", _examineMw()...)
 			_examine.POST("/materials", append(_updateeventstatusMw(), event.UpdateEventStatus)...)
 		}
 		{
-			_query := _api.Group("/query", _queryMw()...)
+			_query0 := _api.Group("/query", _query0Mw()...)
 			{
-				_materials := _query.Group("/materials", _materialsMw()...)
-				_materials.GET("/single", append(_queryeventMw(), event.QueryEvent)...)
-				_materials.GET("/stu", append(_queryeventbystuidfileMw(), event.QueryEventByStuIdFile)...)
+				_materials0 := _query0.Group("/materials", _materials0Mw()...)
+				_materials0.GET("/single", append(_queryeventMw(), event.QueryEvent)...)
+				_materials0.GET("/stu", append(_queryeventbystuidfileMw(), event.QueryEventByStuIdFile)...)
 			}
 		}
 		{
@@ -38,9 +48,9 @@ func Register(r *server.Hertz) {
 				_event.POST("/level", append(_reviseeventlevelMw(), event.ReviseEventLevel)...)
 			}
 			{
-				_materials0 := _update.Group("/materials", _materials0Mw()...)
-				_materials0.POST("/auto", append(_uploadeventMw(), event.UploadEvent)...)
-				_materials0.POST("/file", append(_uploadeventfileMw(), event.UploadEventFile)...)
+				_materials1 := _update.Group("/materials", _materials1Mw()...)
+				_materials1.POST("/auto", append(_uploadeventMw(), event.UploadEvent)...)
+				_materials1.POST("/file", append(_uploadeventfileMw(), event.UploadEventFile)...)
 			}
 		}
 	}

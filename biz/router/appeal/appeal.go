@@ -20,18 +20,28 @@ func Register(r *server.Hertz) {
 	{
 		_api := root.Group("/api", _apiMw()...)
 		{
-			_appeal := _api.Group("/appeal", _appealMw()...)
-			_appeal.POST("/status", append(_updateappealstatusMw(), appeal.UpdateAppealStatus)...)
+			_admin := _api.Group("/admin", _adminMw()...)
+			{
+				_query := _admin.Group("/query", _queryMw()...)
+				{
+					_appeal := _query.Group("/appeal", _appealMw()...)
+					_appeal.GET("/stu", append(_querybelongstuappealMw(), appeal.QueryBelongStuAppeal)...)
+				}
+			}
+		}
+		{
+			_appeal0 := _api.Group("/appeal", _appeal0Mw()...)
+			_appeal0.POST("/status", append(_updateappealstatusMw(), appeal.UpdateAppealStatus)...)
 		}
 		{
 			_delete := _api.Group("/delete", _deleteMw()...)
 			_delete.DELETE("/appeal", append(_deleteappealMw(), appeal.DeleteAppeal)...)
 		}
 		{
-			_query := _api.Group("/query", _queryMw()...)
-			_query.GET("/appeal", append(_queryappealinfoMw(), appeal.QueryAppealInfo)...)
-			_appeal0 := _query.Group("/appeal", _appeal0Mw()...)
-			_appeal0.GET("/stu", append(_querystuappealinfoMw(), appeal.QueryStuAppealInfo)...)
+			_query0 := _api.Group("/query", _query0Mw()...)
+			_query0.GET("/appeal", append(_queryappealinfoMw(), appeal.QueryAppealInfo)...)
+			_appeal1 := _query0.Group("/appeal", _appeal1Mw()...)
+			_appeal1.GET("/stu", append(_querystuappealinfoMw(), appeal.QueryStuAppealInfo)...)
 		}
 		{
 			_upload := _api.Group("/upload", _uploadMw()...)

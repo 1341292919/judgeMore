@@ -6,8 +6,12 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 	"judgeMore/biz/dal/mysql"
 	"judgeMore/biz/service/model"
+	"judgeMore/biz/service/taskqueue"
+	"judgeMore/pkg/constants"
+	"judgeMore/pkg/crypt"
 	"judgeMore/pkg/errno"
 	"judgeMore/pkg/utils"
+	"strconv"
 )
 
 type MaintainService struct {
@@ -27,7 +31,9 @@ func (svc *MaintainService) QueryColleges(page_num, page_size int64) ([]*model.C
 	if utils.VerifyPageParam(page_num, page_size) {
 		return nil, -1, errno.NewErrNo(errno.ParamVerifyErrorCode, "Page Param invalid")
 	}
-	collegeInfoList, count, err := mysql.GetCollegeInfo(svc.ctx)
+	collegeInfoList, err := QueryAllCollege(svc.ctx)
+	var count int64
+	count = int64(len(collegeInfoList))
 	if err != nil {
 		return nil, count, err
 	}
@@ -88,13 +94,83 @@ func (svc *MaintainService) UploadMajor(major_name string, college_id int64) (in
 		return -1, err
 	}
 	// 返回数据库生成的自增ID
+	taskqueue.AddUpdateCacheMajorTask(svc.ctx, constants.StructKey)
 	return major_id, nil
 }
+
 func (svc *MaintainService) UploadCollege(collegeName string) (int64, error) {
 	collegeId, err := mysql.CreateNewCollege(svc.ctx, collegeName)
 	if err != nil {
 		return -1, err
 	}
 	// 返回数据库生成的自增ID
+	taskqueue.AddUpdateCacheCollegeTask(svc.ctx, constants.StructKey)
 	return collegeId, nil
+}
+
+func (svc *MaintainService) AddUser(u *model.User) (string, error) {
+	// 判断role
+	if u.Role != "counselor" && u.Role != "admin" {
+		return "", errno.NewErrNo(errno.ParamVerifyErrorCode, "role error :only admin or counselor")
+	}
+	u.Status = 1
+	// 判断用户存在与否
+	exist, err := mysql.IsUserExist(svc.ctx, &model.User{Uid: u.Uid})
+	if err != nil {
+		return "", err
+	}
+	if exist {
+		return "", errno.NewErrNo(errno.ServiceUserExistCode, "user exist")
+	}
+	//
+	u.Password, err = crypt.PasswordHash(u.Password)
+	if err != nil {
+		return "", fmt.Errorf("hash password error" + err.Error())
+	}
+	id, err := mysql.CreateUser(svc.ctx, u)
+	if err != nil {
+		return "", err
+	}
+	return id, nil
+}
+
+func (svc *MaintainService) AddAdminRelation(relation *model.Relation) error {
+	// 传进来的是学院与专业名称
+	// 需要查找对应的ID
+	if relation.CollegeName != "" {
+		collegeList, err := QueryAllCollege(svc.ctx)
+		if err != nil {
+			return err
+		}
+		for _, collge := range collegeList {
+			if collge.CollegeName == relation.CollegeName {
+				relation.CollegeId = strconv.FormatInt(collge.CollegeId, 10)
+				break
+			}
+		}
+		if relation.CollegeId == "" { //查找后没找到
+			return errno.NewErrNo(errno.ServiceCollegeNotExistCode, "College not exist")
+		}
+	} else {
+		majorList, err := QueryAllMajor(svc.ctx)
+		if err != nil {
+			return err
+		}
+		for _, major := range majorList {
+			if major.MajorName == relation.MajorName {
+				relation.MajorId = strconv.FormatInt(major.MajorId, 10)
+				break
+			}
+		}
+		if relation.MajorId == "" { //查找后没找到
+			return errno.NewErrNo(errno.ServiceCollegeNotExistCode, "Major not exist")
+		}
+	}
+	// 这时已经正确匹配了存在的专业，插入数据库
+	err := mysql.CreateNewRelation(svc.ctx, relation)
+	if err != nil {
+		return err
+	}
+	taskqueue.AddUpdateInsertStuTask(svc.ctx, constants.StructKey, relation)
+	return nil
 }

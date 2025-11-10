@@ -25,6 +25,9 @@ func Register(r *server.Hertz) {
 			_admin.POST("/colleges", append(_uploadcollegeMw(), maintain.UploadCollege)...)
 			_admin.GET("/majors", append(_querymajorbycollegeidMw(), maintain.QueryMajorByCollegeId)...)
 			_admin.POST("/majors", append(_uploadmajorMw(), maintain.UploadMajor)...)
+			_admin.POST("/users", append(_adduserMw(), maintain.AddUser)...)
+			_users := _admin.Group("/users", _usersMw()...)
+			_users.POST("/permission", append(_addadminobjectMw(), maintain.AddAdminObject)...)
 		}
 	}
 }

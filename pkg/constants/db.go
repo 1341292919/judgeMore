@@ -9,4 +9,6 @@ const (
 	TableMajor          = "major"
 	TableCollege        = "college"
 	TableAppeal         = "appeals"
+	TableRelation       = "relation"
+	TableAdminRelation  = "admin_object"
 )

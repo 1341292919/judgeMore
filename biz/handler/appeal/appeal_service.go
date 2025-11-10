@@ -132,3 +132,25 @@ func QueryStuAppealInfo(ctx context.Context, c *app.RequestContext) {
 	resp.Base = pack.BuildBaseResp(errno.Success)
 	pack.SendResponse(c, resp)
 }
+
+// QueryBelongStuAppeal .
+// @router /api/admin/query/appeal/stu [GET]
+func QueryBelongStuAppeal(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req appeal.QueryBelongStuAppealRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		pack.SendFailResponse(c, errno.NewErrNo(errno.ParamMissingErrorCode, "required file but found not "))
+		return
+	}
+
+	resp := new(appeal.QueryBelongStuAppealResponse)
+	appealInfo, count, err := service.NewAppealService(ctx, c).QueryBelongStuAppeal(req.Status)
+	if err != nil {
+		pack.SendFailResponse(c, errno.ConvertErr(err))
+		return
+	}
+	resp.Data = pack.AppealList(appealInfo, count)
+	resp.Base = pack.BuildBaseResp(errno.Success)
+	pack.SendResponse(c, resp)
+}

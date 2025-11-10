@@ -141,3 +141,25 @@ func ReviseEventLevel(ctx context.Context, c *app.RequestContext) {
 	resp.Base = pack.BuildBaseResp(errno.Success)
 	pack.SendResponse(c, resp)
 }
+
+// QueryBelongStuEvent .
+// @router /api/admin/query/materials/stu [GET]
+func QueryBelongStuEvent(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req event.QueryBelongStuEventRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		pack.SendFailResponse(c, errno.NewErrNo(errno.ParamMissingErrorCode, "param missing:"+err.Error()))
+		return
+	}
+
+	resp := new(event.QueryBelongStuEventResponse)
+	info, count, err := service.NewEventService(ctx, c).QueryBelongStuEvent(req.Status)
+	if err != nil {
+		pack.SendFailResponse(c, errno.ConvertErr(err))
+		return
+	}
+	resp.Data = pack.EventList(info, count)
+	resp.Base = pack.BuildBaseResp(errno.Success)
+	pack.SendResponse(c, resp)
+}

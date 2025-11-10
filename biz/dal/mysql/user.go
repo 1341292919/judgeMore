@@ -30,8 +30,8 @@ func CreateUser(ctx context.Context, user *model.User) (string, error) {
 		Password: user.Password,
 		Email:    user.Email,
 		RoleId:   user.Uid,
-		UserRole: "student",
-		Status:   0, //初始状态未激活
+		UserRole: user.Role,
+		Status:   user.Status, //初始状态未激活
 	}
 	err := db.WithContext(ctx).
 		Table(constants.TableUser).
@@ -110,6 +110,30 @@ func UpdateInfoByRoleId(ctx context.Context, role_id string, element ...string) 
 	return GetUserInfoByRoleId(ctx, role_id)
 }
 
+func QueryUserByMajor(ctx context.Context, major, grade string) ([]string, error) {
+	var stuIds []string
+	err := db.WithContext(ctx).
+		Table(constants.TableUser).
+		Where("major = ? and grade = ?", major, grade).
+		Pluck("role_id", &stuIds).
+		Error
+	if err != nil {
+		return nil, errno.NewErrNo(errno.InternalDatabaseErrorCode, "query user_id error "+err.Error())
+	}
+	return stuIds, nil
+}
+func QueryUserByCollege(ctx context.Context, college string) ([]string, error) {
+	var stuIds []string
+	err := db.WithContext(ctx).
+		Table(constants.TableUser).
+		Where("college", college).
+		Pluck("role_id", &stuIds).
+		Error
+	if err != nil {
+		return nil, errno.NewErrNo(errno.InternalDatabaseErrorCode, "query user_id error "+err.Error())
+	}
+	return stuIds, nil
+}
 func ActivateUser(ctx context.Context, uid string) error {
 	err := db.WithContext(ctx).
 		Table(constants.TableUser).

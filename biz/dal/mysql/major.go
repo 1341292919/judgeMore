@@ -32,6 +32,19 @@ func RealGetMajorInfoByCollegeId(ctx context.Context, college_id int64) ([]*mode
 	}
 	return BuildMajorInfoList(majorInfos), count, err
 }
+func GetAllMajorInfo(ctx context.Context) ([]*model.Major, int64, error) {
+	var majorInfos []*Major
+	var count int64
+	err := db.WithContext(ctx).
+		Table(constants.TableMajor).
+		Find(&majorInfos).
+		Count(&count).
+		Error
+	if err != nil {
+		return nil, -1, errno.Errorf(errno.InternalDatabaseErrorCode, "mysql: failed query stu event: %v", err)
+	}
+	return BuildMajorInfoList(majorInfos), count, err
+}
 
 func BuildMajorInfo(data *Major) *model.Major {
 	return &model.Major{

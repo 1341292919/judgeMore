@@ -49,6 +49,7 @@ func (svc *ScoreService) QueryScoreRecordByEventId(event_id string) (*model.Scor
 	}
 	return recordInfo, nil
 }
+
 func (svc *ScoreService) QueryScoreRecordByStuId(stu_id string) ([]*model.ScoreRecord, int64, error) {
 	exist, err := mysql.IsUserExist(svc.ctx, &model.User{Uid: stu_id})
 	if err != nil {
@@ -64,7 +65,7 @@ func (svc *ScoreService) QueryScoreRecordByStuId(stu_id string) ([]*model.ScoreR
 	return recordInfoList, count, nil
 }
 
-// 这个接口的权限问题还需要考虑
+// 用于直接修改积分。
 func (svc *ScoreService) ReviseScore(result_id string, score float64) error {
 	exist, err := mysql.IsScoreRecordExist(svc.ctx, result_id)
 	if err != nil {
@@ -72,6 +73,19 @@ func (svc *ScoreService) ReviseScore(result_id string, score float64) error {
 	}
 	if !exist {
 		return errno.NewErrNo(errno.ServiceRecordNotExistCode, "Socre Result not exist")
+	}
+	info, err := mysql.QueryScoreRecordByScoreId(svc.ctx, result_id)
+	if err != nil {
+		return err
+	}
+	// 验证用户权限
+	user_id := GetUserIDFromContext(svc.c)
+	exist, err = mysql.IsAdminRelationExist(svc.ctx, user_id, info.UserId)
+	if err != nil {
+		return err
+	}
+	if !exist {
+		return errno.NewErrNo(errno.ServiceNoAuthToDo, "No permission to update the stu's score")
 	}
 	err = mysql.UpdatesScore(svc.ctx, result_id, score)
 	if err != nil {

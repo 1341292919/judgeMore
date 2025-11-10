@@ -61,6 +61,7 @@ func (svc *EventService) QueryEventByStuId() ([]*model.Event, int64, error) {
 }
 func (svc *EventService) UpdateEventStatus(event_id string, status int64) (*model.Event, error) {
 	// 常规检验
+	admin_id := GetUserIDFromContext(svc.c)
 	exist, err := mysql.IsEventExist(svc.ctx, event_id)
 	if err != nil {
 		return nil, fmt.Errorf("check event exist failed: %w", err)
@@ -71,6 +72,21 @@ func (svc *EventService) UpdateEventStatus(event_id string, status int64) (*mode
 	// 检验传上来的status
 	if status != 1 && status != 2 {
 		return nil, errno.NewErrNo(errno.ParamVerifyErrorCode, "status should be 1 or 2")
+	}
+	// 判断是否有权限审核
+	eventInfo, err := mysql.GetEventInfoById(svc.ctx, event_id)
+	if err != nil {
+		return nil, err
+	}
+	if eventInfo.MaterialStatus == "已审核" || eventInfo.MaterialStatus == "驳回" {
+		return nil, errno.NewErrNo(errno.ServiceRepeatAction, "the martial have been checked")
+	}
+	exist, err = mysql.IsAdminRelationExist(svc.ctx, admin_id, eventInfo.Uid)
+	if err != nil {
+		return nil, err
+	}
+	if !exist {
+		return nil, errno.NewErrNo(errno.ServiceNoAuthToDo, "No permission to check the stu's event")
 	}
 	info, err := mysql.UpdateEventStatus(svc.ctx, event_id, status)
 	if err != nil {
@@ -119,7 +135,7 @@ func (svc *EventService) UploadEventFile(file *multipart.FileHeader) (string, er
 		return "", fmt.Errorf("upload file failed: %w", err)
 	}
 	eventInfo.MaterialUrl = url
-	// 存入数据库
+	// 存入数据库 不进行check则无法完善相关材料。但不匹配也应该存下该材料
 	err = CheckEvent(svc.ctx, eventInfo)
 	if err != nil {
 		return "", err
@@ -155,6 +171,14 @@ func (svc *EventService) UpdateEventLevel(event_id string, level string, appeal_
 	}
 	if recordInfo.AppealId != appeal_id {
 		return errno.NewErrNo(errno.ServiceEventUnChangedCode, "appeal not match the event")
+	}
+	user_id := GetUserIDFromContext(svc.c)
+	exist, err = mysql.IsAdminRelationExist(svc.ctx, user_id, recordInfo.UserId)
+	if err != nil {
+		return err
+	}
+	if !exist {
+		return errno.NewErrNo(errno.ServiceNoAuthToDo, "No permission to update the stu's appeal")
 	}
 	err = mysql.UpdateEventLevel(svc.ctx, event_id, level)
 	if err != nil {
@@ -193,4 +217,35 @@ func CheckEvent(ctx context.Context, eventInfo *model.Event) error {
 	}
 	return nil
 
+}
+func (svc *EventService) QueryBelongStuEvent(status string) ([]*model.Event, int64, error) {
+	// 这边由token提取 前面jwt中间件会将学生token拦在外面 保证权限够高
+	if status != "待审核" && status != "已审核" && status != "驳回" {
+		return nil, 0, errno.NewErrNo(errno.InternalDatabaseErrorCode, "error status type")
+	}
+	user_id := GetUserIDFromContext(svc.c)
+	stuList, err := mysql.QueryStuByAdmin(svc.ctx, user_id)
+	if err != nil {
+		return nil, -1, err
+	}
+	if len(stuList) == 0 {
+		return nil, 0, nil
+	}
+	eventInfoList := make([]*model.Event, 0)
+	var totalCount int64 = 0
+
+	for _, v := range stuList {
+		events, _, err := mysql.GetEventInfoByStuId(svc.ctx, v) // events 是 []*model.Event
+		if err != nil {
+			return nil, -1, err
+		}
+		// 过滤符合状态的事件
+		for _, event := range events {
+			if event.MaterialStatus == status {
+				eventInfoList = append(eventInfoList, event)
+				totalCount++
+			}
+		}
+	}
+	return eventInfoList, totalCount, nil
 }

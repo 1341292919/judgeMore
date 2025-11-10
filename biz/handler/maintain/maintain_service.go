@@ -6,6 +6,7 @@ import (
 	"context"
 	"judgeMore/biz/pack"
 	"judgeMore/biz/service"
+	"judgeMore/biz/service/model"
 	"judgeMore/pkg/errno"
 
 	"github.com/cloudwego/hertz/pkg/app"
@@ -95,6 +96,70 @@ func UploadCollege(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	resp.CollegeID = collegeId
+	resp.Base = pack.BuildBaseResp(errno.Success)
+	pack.SendResponse(c, resp)
+}
+
+// AddUser .
+// @router /api/admin/users [POST]
+func AddUser(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req maintain.AddUserRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		pack.SendFailResponse(c, errno.NewErrNo(errno.ParamMissingErrorCode, "param missing:"+err.Error()))
+		return
+	}
+	resp := new(maintain.AddUserResponse)
+	u := &model.User{
+		Uid:      req.UserID,
+		Password: req.Password,
+		Email:    req.Email,
+		UserName: req.Username,
+		Role:     req.UserRole,
+	}
+	if req.College != nil {
+		u.College = *req.College
+	}
+	userid, err := service.NewMaintainService(ctx, c).AddUser(u)
+	if err != nil {
+		pack.SendFailResponse(c, errno.ConvertErr(err))
+		return
+	}
+	resp.UserID = userid
+	resp.Base = pack.BuildBaseResp(errno.Success)
+	pack.SendResponse(c, resp)
+}
+
+// AddAdminObject .
+// @router /api/admin/users/permission [POST]
+func AddAdminObject(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req maintain.AddAdminObjectRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		pack.SendFailResponse(c, errno.NewErrNo(errno.ParamMissingErrorCode, "param missing:"+err.Error()))
+		return
+	}
+
+	resp := new(maintain.AddAdminObjectResponse)
+	r := &model.Relation{
+		UserId: req.UserID,
+	}
+	if req.CollegeName == nil {
+		if req.MajorName == nil || req.Grade == nil {
+			pack.SendFailResponse(c, errno.NewErrNo(errno.ParamMissingErrorCode, "param missing: college or majot must have one"))
+		}
+		r.MajorName = *req.MajorName
+		r.Grade = *req.Grade
+	} else {
+		r.CollegeName = *req.CollegeName
+	}
+	err = service.NewMaintainService(ctx, c).AddAdminRelation(r)
+	if err != nil {
+		pack.SendFailResponse(c, errno.ConvertErr(err))
+		return
+	}
 	resp.Base = pack.BuildBaseResp(errno.Success)
 	pack.SendResponse(c, resp)
 }

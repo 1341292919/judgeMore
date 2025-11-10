@@ -39,11 +39,18 @@ struct UpdateAppealRequest{
 struct UpdateAppealResponse{
       1: required model.BaseResp base,
 }
-
+struct QueryBelongStuAppealRequest{
+    1: required string status,
+}
+struct QueryBelongStuAppealResponse{
+     1: required model.BaseResp base,
+     2: required model.AppealList data,
+}
 service AppealService{
     ApplyAppealResponse ApplyAppeal(1:ApplyAppealRequest req)(api.post = "/api/upload/appeal"),
     DeleteAppealResponse DeleteAppeal(1:DeleteAppealRequest req)(api.delete = "/api/delete/appeal"),
     QueryAppealInfoResponse QueryAppealInfo(1:QueryAppealInfoRequest req)(api.get="/api/query/appeal"),
     QueryStuAppealInfoResponse QueryStuAppealInfo(1:QueryStuAppealInfoRequest req)(api.get="/api/query/appeal/stu"),
-    UpdateAppealResponse UpdateAppealStatus(1:UpdateAppealRequest req)(api.post = "/api/appeal/status")
+    UpdateAppealResponse UpdateAppealStatus(1:UpdateAppealRequest req)(api.post = "/api/appeal/status"),
+    QueryBelongStuAppealResponse QueryBelongStuAppeal(1:QueryBelongStuAppealRequest req)(api.get = "/api/admin/query/appeal/stu")
 }

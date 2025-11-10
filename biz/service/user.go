@@ -5,13 +5,14 @@ import (
 	"errors"
 	"fmt"
 	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"judgeMore/biz/dal/cache"
 	"judgeMore/biz/dal/mysql"
 	"judgeMore/biz/service/model"
+	"judgeMore/biz/service/taskqueue"
 	"judgeMore/pkg/constants"
 	"judgeMore/pkg/crypt"
 	"judgeMore/pkg/errno"
+	"judgeMore/pkg/utils"
 	"strings"
 )
 
@@ -68,6 +69,8 @@ func (svc *UserService) Register(req *model.User) (string, error) {
 		return "", err
 	}
 	// 创建账户
+	req.Role = "student"
+	req.Status = 0
 	uid, err := mysql.CreateUser(svc.ctx, req)
 	if err != nil {
 		return "", err
@@ -94,10 +97,30 @@ func (svc *UserService) UpdateUserInfo(u *model.User) (UserInfo *model.User, err
 	// 由于uid读取自token 所以不做存在性检验
 	id := GetUserIDFromContext(svc.c)
 	u.Uid = id
+	// 检验学院和专业
+	exist, err := IsMajorExist(svc.ctx, u.Major)
+	if err != nil {
+		return nil, err
+	}
+	if !exist {
+		return nil, errno.NewErrNo(errno.ServiceMajorNotExistCode, "major not exist")
+	}
+	exist, err = IsCollegeExist(svc.ctx, u.College)
+	if err != nil {
+		return nil, err
+	}
+	if !exist {
+		return nil, errno.NewErrNo(errno.ServiceCollegeExistCode, "college not exist")
+	}
+	// 检验年级
+	if !utils.IsGradeValid(u.Grade) {
+		return nil, errno.NewErrNo(errno.ServiceGradeNotExistCode, "invalid grade")
+	}
 	userInfo, err := svc.UpdateUser(svc.ctx, u)
 	if err != nil {
 		return nil, err
 	}
+	taskqueue.AddStuToAdminRelation(svc.ctx, constants.UserKey, u)
 	return userInfo, nil
 }
 
@@ -152,11 +175,10 @@ func (svc *UserService) SendEmail(user *model.User) error {
 	if err != nil {
 		return err
 	}
-	//err = utils.MailSendCode(user.Email, code)
-	//if err != nil {
-	//	return err
-	//}
-	hlog.Info(code)
+	err = utils.MailSendCode(user.Email, code)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 func (svc *UserService) Logout() error {

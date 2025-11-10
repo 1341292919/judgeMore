@@ -125,6 +125,7 @@ CREATE TABLE `appeals`  (
                             `deleted_at` datetime NULL DEFAULT NULL COMMENT '删除时间',
                             PRIMARY KEY (`appeal_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 20500 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '存储学生对审核结果的申诉记录' ROW_FORMAT = Dynamic;
+
 -- ----------------------------
 -- 第三步：创建依赖最多的表
 -- ----------------------------
@@ -214,3 +215,31 @@ CREATE TABLE `major`  (
                           CONSTRAINT `major_ibfk_1` FOREIGN KEY (`college_id`) REFERENCES `college` (`college_id`) ON DELETE CASCADE ON UPDATE RESTRICT
 ) ENGINE = InnoDB AUTO_INCREMENT = 200800 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '专业表' ROW_FORMAT = Dynamic;
 SET FOREIGN_KEY_CHECKS = 1;
+
+DROP TABLE IF EXISTS `relation`;
+CREATE TABLE `relation`  (
+                             `relation_id` bigint NOT NULL AUTO_INCREMENT COMMENT '关系ID',
+                             `user_id` int NOT NULL COMMENT '用户ID',
+                             `major` varchar(100) NOT NULL COMMENT '专业',
+                             `major_id` varchar(100) NOT NULL COMMENT '专业id',
+                             `grade` varchar(50) NOT NULL COMMENT '年级',
+                             `college_id` varchar(100) NOT NULL COMMENT '学院id',
+                             `college` varchar(100) NOT NULL COMMENT '学院',
+                             `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+                             `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+                             `deleted_at` datetime NULL DEFAULT NULL COMMENT '删除时间',
+                             PRIMARY KEY (`relation_id`) USING BTREE,
+                             INDEX `idx_user_id`(`user_id` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 80500 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户关系表' ROW_FORMAT = Dynamic;
+
+
+DROP TABLE IF EXISTS `admin_object`;
+CREATE TABLE `admin_object`  (
+                             `admin_id` bigint NOT NULL COMMENT '管理员ID',
+                             `stu_id` int NOT NULL COMMENT '管理用户ID',
+                             `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+                             `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+                             `deleted_at` datetime NULL DEFAULT NULL COMMENT '删除时间',
+                             PRIMARY KEY (`admin_id`, `stu_id`) USING BTREE,
+                             INDEX `idx_stu_id`(`stu_id` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '管理员-学生关系表' ROW_FORMAT = Dynamic;

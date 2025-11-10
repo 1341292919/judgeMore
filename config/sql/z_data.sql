@@ -232,7 +232,7 @@ INSERT INTO `event_rules` (
 
 -- 插入学院数据
 INSERT INTO `college` (`college_name`) VALUES
-                                           ('计算机科学与技术学院'),
+                                           ('计算机与大数据学院'),
                                            ('电子与信息工程学院'),
                                            ('机械工程学院'),
                                            ('土木建筑工程学院'),
@@ -338,3 +338,9 @@ INSERT INTO `major` (`college_id`, `major_name`) VALUES
 (100811, '环境科学'),
 (100811, '资源环境科学'),
 (100811, '环保设备工程');
+
+
+INSERT INTO `users` (`user_name`, `user_role`, `role_id`, `email`, `college`, `password`, `major`, `grade`, `status`) VALUES
+                                                                                                                          ('管理员', 'admin', '123456789', '123456789@qq.com', '', '$2a$10$j1VVQc/ZtHanv3MuzbMqt.RRyy37w4Dp6BFxbNMqk4NYU90q5L94G', NULL, NULL, 1),
+                                                                                                                          ('汪老师', 'counselor', '202300220', '202300220@qq.com', '', '$2a$10$1/yfrqhqXlByo3x/pZHrcetQ1NjiQH9u4y9OWAi4CWiE81zTkq2LG', NULL, NULL, 1),
+                                                                                                                          ('张宇亮', 'student', '102300220', '102300220@fzu.edu.cn', '计算机与大数据学院', '$2a$10$j0RTugTzuWEShBdmMUktz.LCki3AUFye8Giri4J78Wbm5IjF4pD/u', '软件工程', '23', 1);

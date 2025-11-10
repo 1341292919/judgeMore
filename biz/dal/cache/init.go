@@ -8,6 +8,7 @@ import (
 
 var userCa *redis.Client
 var scoreCa *redis.Client
+var structureCa *redis.Client
 
 func Init() {
 	var err error
@@ -19,4 +20,5 @@ func Init() {
 	if err != nil {
 		panic(err)
 	}
+	structureCa, err = client.NewRedisClient(constants.RedisDBStructure)
 }

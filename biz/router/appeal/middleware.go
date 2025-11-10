@@ -9,7 +9,7 @@ import (
 
 func rootMw() []app.HandlerFunc {
 	// your code...
-	return auth.Auth(1)
+	return nil
 }
 
 func _apiMw() []app.HandlerFunc {
@@ -24,7 +24,7 @@ func _appealMw() []app.HandlerFunc {
 
 func _updateappealstatusMw() []app.HandlerFunc {
 	// your code...
-	return nil
+	return auth.Auth(2)
 }
 
 func _deleteMw() []app.HandlerFunc {
@@ -34,7 +34,7 @@ func _deleteMw() []app.HandlerFunc {
 
 func _deleteappealMw() []app.HandlerFunc {
 	// your code...
-	return nil
+	return auth.Auth(1)
 }
 
 func _queryMw() []app.HandlerFunc {
@@ -44,7 +44,7 @@ func _queryMw() []app.HandlerFunc {
 
 func _queryappealinfoMw() []app.HandlerFunc {
 	// your code...
-	return nil
+	return auth.Auth(1)
 }
 
 func _uploadMw() []app.HandlerFunc {
@@ -54,7 +54,7 @@ func _uploadMw() []app.HandlerFunc {
 
 func _applyappealMw() []app.HandlerFunc {
 	// your code...
-	return nil
+	return auth.Auth(1)
 }
 
 func _appeal0Mw() []app.HandlerFunc {
@@ -63,6 +63,26 @@ func _appeal0Mw() []app.HandlerFunc {
 }
 
 func _querystuappealinfoMw() []app.HandlerFunc {
+	// your code...
+	return auth.Auth(1)
+}
+
+func _adminMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _querybelongstuappealMw() []app.HandlerFunc {
+	// your code...
+	return auth.Auth(2)
+}
+
+func _query0Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _appeal1Mw() []app.HandlerFunc {
 	// your code...
 	return nil
 }

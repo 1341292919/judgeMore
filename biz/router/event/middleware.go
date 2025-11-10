@@ -74,7 +74,7 @@ func _examineMw() []app.HandlerFunc {
 
 func _updateeventstatusMw() []app.HandlerFunc {
 	// your code...
-	return auth.Auth(1)
+	return auth.Auth(2)
 }
 
 func _eventMw() []app.HandlerFunc {
@@ -83,6 +83,26 @@ func _eventMw() []app.HandlerFunc {
 }
 
 func _reviseeventlevelMw() []app.HandlerFunc {
+	// your code...
+	return auth.Auth(2)
+}
+
+func _adminMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _querybelongstueventMw() []app.HandlerFunc {
+	// your code...
+	return auth.Auth(2)
+}
+
+func _query0Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _materials1Mw() []app.HandlerFunc {
 	// your code...
 	return nil
 }

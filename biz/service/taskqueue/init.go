@@ -11,4 +11,5 @@ func Init() {
 	taskQueue = taskqueue.NewBaseTaskQueue()
 	Work(constants.EventKey)
 	Work(constants.AppealKey)
+	Work(constants.StructKey)
 }

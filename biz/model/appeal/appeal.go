@@ -1904,6 +1904,369 @@ func (p *UpdateAppealResponse) String() string {
 
 }
 
+type QueryBelongStuAppealRequest struct {
+	Status string `thrift:"status,1,required" form:"status,required" json:"status,required" query:"status,required"`
+}
+
+func NewQueryBelongStuAppealRequest() *QueryBelongStuAppealRequest {
+	return &QueryBelongStuAppealRequest{}
+}
+
+func (p *QueryBelongStuAppealRequest) InitDefault() {
+}
+
+func (p *QueryBelongStuAppealRequest) GetStatus() (v string) {
+	return p.Status
+}
+
+var fieldIDToName_QueryBelongStuAppealRequest = map[int16]string{
+	1: "status",
+}
+
+func (p *QueryBelongStuAppealRequest) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	var issetStatus bool = false
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetStatus = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	if !issetStatus {
+		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_QueryBelongStuAppealRequest[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+RequiredFieldNotSetError:
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_QueryBelongStuAppealRequest[fieldId]))
+}
+
+func (p *QueryBelongStuAppealRequest) ReadField1(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.Status = _field
+	return nil
+}
+
+func (p *QueryBelongStuAppealRequest) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("QueryBelongStuAppealRequest"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *QueryBelongStuAppealRequest) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("status", thrift.STRING, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Status); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *QueryBelongStuAppealRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("QueryBelongStuAppealRequest(%+v)", *p)
+
+}
+
+type QueryBelongStuAppealResponse struct {
+	Base *model.BaseResp   `thrift:"base,1,required" form:"base,required" json:"base,required" query:"base,required"`
+	Data *model.AppealList `thrift:"data,2,required" form:"data,required" json:"data,required" query:"data,required"`
+}
+
+func NewQueryBelongStuAppealResponse() *QueryBelongStuAppealResponse {
+	return &QueryBelongStuAppealResponse{}
+}
+
+func (p *QueryBelongStuAppealResponse) InitDefault() {
+}
+
+var QueryBelongStuAppealResponse_Base_DEFAULT *model.BaseResp
+
+func (p *QueryBelongStuAppealResponse) GetBase() (v *model.BaseResp) {
+	if !p.IsSetBase() {
+		return QueryBelongStuAppealResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+
+var QueryBelongStuAppealResponse_Data_DEFAULT *model.AppealList
+
+func (p *QueryBelongStuAppealResponse) GetData() (v *model.AppealList) {
+	if !p.IsSetData() {
+		return QueryBelongStuAppealResponse_Data_DEFAULT
+	}
+	return p.Data
+}
+
+var fieldIDToName_QueryBelongStuAppealResponse = map[int16]string{
+	1: "base",
+	2: "data",
+}
+
+func (p *QueryBelongStuAppealResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *QueryBelongStuAppealResponse) IsSetData() bool {
+	return p.Data != nil
+}
+
+func (p *QueryBelongStuAppealResponse) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	var issetBase bool = false
+	var issetData bool = false
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetBase = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetData = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	if !issetBase {
+		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetData {
+		fieldId = 2
+		goto RequiredFieldNotSetError
+	}
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_QueryBelongStuAppealResponse[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+RequiredFieldNotSetError:
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_QueryBelongStuAppealResponse[fieldId]))
+}
+
+func (p *QueryBelongStuAppealResponse) ReadField1(iprot thrift.TProtocol) error {
+	_field := model.NewBaseResp()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Base = _field
+	return nil
+}
+func (p *QueryBelongStuAppealResponse) ReadField2(iprot thrift.TProtocol) error {
+	_field := model.NewAppealList()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Data = _field
+	return nil
+}
+
+func (p *QueryBelongStuAppealResponse) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("QueryBelongStuAppealResponse"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *QueryBelongStuAppealResponse) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("base", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Base.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *QueryBelongStuAppealResponse) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("data", thrift.STRUCT, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Data.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *QueryBelongStuAppealResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("QueryBelongStuAppealResponse(%+v)", *p)
+
+}
+
 type AppealService interface {
 	ApplyAppeal(ctx context.Context, req *ApplyAppealRequest) (r *ApplyAppealResponse, err error)
 
@@ -1914,6 +2277,8 @@ type AppealService interface {
 	QueryStuAppealInfo(ctx context.Context, req *QueryStuAppealInfoRequest) (r *QueryStuAppealInfoResponse, err error)
 
 	UpdateAppealStatus(ctx context.Context, req *UpdateAppealRequest) (r *UpdateAppealResponse, err error)
+
+	QueryBelongStuAppeal(ctx context.Context, req *QueryBelongStuAppealRequest) (r *QueryBelongStuAppealResponse, err error)
 }
 
 type AppealServiceClient struct {
@@ -1987,6 +2352,15 @@ func (p *AppealServiceClient) UpdateAppealStatus(ctx context.Context, req *Updat
 	}
 	return _result.GetSuccess(), nil
 }
+func (p *AppealServiceClient) QueryBelongStuAppeal(ctx context.Context, req *QueryBelongStuAppealRequest) (r *QueryBelongStuAppealResponse, err error) {
+	var _args AppealServiceQueryBelongStuAppealArgs
+	_args.Req = req
+	var _result AppealServiceQueryBelongStuAppealResult
+	if err = p.Client_().Call(ctx, "QueryBelongStuAppeal", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
 
 type AppealServiceProcessor struct {
 	processorMap map[string]thrift.TProcessorFunction
@@ -2013,6 +2387,7 @@ func NewAppealServiceProcessor(handler AppealService) *AppealServiceProcessor {
 	self.AddToProcessorMap("QueryAppealInfo", &appealServiceProcessorQueryAppealInfo{handler: handler})
 	self.AddToProcessorMap("QueryStuAppealInfo", &appealServiceProcessorQueryStuAppealInfo{handler: handler})
 	self.AddToProcessorMap("UpdateAppealStatus", &appealServiceProcessorUpdateAppealStatus{handler: handler})
+	self.AddToProcessorMap("QueryBelongStuAppeal", &appealServiceProcessorQueryBelongStuAppeal{handler: handler})
 	return self
 }
 func (p *AppealServiceProcessor) Process(ctx context.Context, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
@@ -2256,6 +2631,54 @@ func (p *appealServiceProcessorUpdateAppealStatus) Process(ctx context.Context, 
 		result.Success = retval
 	}
 	if err2 = oprot.WriteMessageBegin("UpdateAppealStatus", thrift.REPLY, seqId); err2 != nil {
+		err = err2
+	}
+	if err2 = result.Write(oprot); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
+		err = err2
+	}
+	if err != nil {
+		return
+	}
+	return true, err
+}
+
+type appealServiceProcessorQueryBelongStuAppeal struct {
+	handler AppealService
+}
+
+func (p *appealServiceProcessorQueryBelongStuAppeal) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := AppealServiceQueryBelongStuAppealArgs{}
+	if err = args.Read(iprot); err != nil {
+		iprot.ReadMessageEnd()
+		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
+		oprot.WriteMessageBegin("QueryBelongStuAppeal", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return false, err
+	}
+
+	iprot.ReadMessageEnd()
+	var err2 error
+	result := AppealServiceQueryBelongStuAppealResult{}
+	var retval *QueryBelongStuAppealResponse
+	if retval, err2 = p.handler.QueryBelongStuAppeal(ctx, args.Req); err2 != nil {
+		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing QueryBelongStuAppeal: "+err2.Error())
+		oprot.WriteMessageBegin("QueryBelongStuAppeal", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return true, err2
+	} else {
+		result.Success = retval
+	}
+	if err2 = oprot.WriteMessageBegin("QueryBelongStuAppeal", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -3750,5 +4173,301 @@ func (p *AppealServiceUpdateAppealStatusResult) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("AppealServiceUpdateAppealStatusResult(%+v)", *p)
+
+}
+
+type AppealServiceQueryBelongStuAppealArgs struct {
+	Req *QueryBelongStuAppealRequest `thrift:"req,1"`
+}
+
+func NewAppealServiceQueryBelongStuAppealArgs() *AppealServiceQueryBelongStuAppealArgs {
+	return &AppealServiceQueryBelongStuAppealArgs{}
+}
+
+func (p *AppealServiceQueryBelongStuAppealArgs) InitDefault() {
+}
+
+var AppealServiceQueryBelongStuAppealArgs_Req_DEFAULT *QueryBelongStuAppealRequest
+
+func (p *AppealServiceQueryBelongStuAppealArgs) GetReq() (v *QueryBelongStuAppealRequest) {
+	if !p.IsSetReq() {
+		return AppealServiceQueryBelongStuAppealArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+var fieldIDToName_AppealServiceQueryBelongStuAppealArgs = map[int16]string{
+	1: "req",
+}
+
+func (p *AppealServiceQueryBelongStuAppealArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *AppealServiceQueryBelongStuAppealArgs) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_AppealServiceQueryBelongStuAppealArgs[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *AppealServiceQueryBelongStuAppealArgs) ReadField1(iprot thrift.TProtocol) error {
+	_field := NewQueryBelongStuAppealRequest()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Req = _field
+	return nil
+}
+
+func (p *AppealServiceQueryBelongStuAppealArgs) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("QueryBelongStuAppeal_args"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *AppealServiceQueryBelongStuAppealArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Req.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *AppealServiceQueryBelongStuAppealArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("AppealServiceQueryBelongStuAppealArgs(%+v)", *p)
+
+}
+
+type AppealServiceQueryBelongStuAppealResult struct {
+	Success *QueryBelongStuAppealResponse `thrift:"success,0,optional"`
+}
+
+func NewAppealServiceQueryBelongStuAppealResult() *AppealServiceQueryBelongStuAppealResult {
+	return &AppealServiceQueryBelongStuAppealResult{}
+}
+
+func (p *AppealServiceQueryBelongStuAppealResult) InitDefault() {
+}
+
+var AppealServiceQueryBelongStuAppealResult_Success_DEFAULT *QueryBelongStuAppealResponse
+
+func (p *AppealServiceQueryBelongStuAppealResult) GetSuccess() (v *QueryBelongStuAppealResponse) {
+	if !p.IsSetSuccess() {
+		return AppealServiceQueryBelongStuAppealResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+var fieldIDToName_AppealServiceQueryBelongStuAppealResult = map[int16]string{
+	0: "success",
+}
+
+func (p *AppealServiceQueryBelongStuAppealResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *AppealServiceQueryBelongStuAppealResult) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField0(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_AppealServiceQueryBelongStuAppealResult[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *AppealServiceQueryBelongStuAppealResult) ReadField0(iprot thrift.TProtocol) error {
+	_field := NewQueryBelongStuAppealResponse()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Success = _field
+	return nil
+}
+
+func (p *AppealServiceQueryBelongStuAppealResult) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("QueryBelongStuAppeal_result"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField0(oprot); err != nil {
+			fieldId = 0
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *AppealServiceQueryBelongStuAppealResult) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Success.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
+}
+
+func (p *AppealServiceQueryBelongStuAppealResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("AppealServiceQueryBelongStuAppealResult(%+v)", *p)
 
 }

@@ -120,10 +120,54 @@ func (svc *AppealService) HandleAppeal(appeal *model.Appeal) error {
 	}
 	id := GetUserIDFromContext(svc.c)
 	appeal.UserId = id
+	// 判读有无权限处理该申诉
+	appealInfo, err := mysql.QueryAppealById(svc.ctx, appeal.AppealId)
+	if err != nil {
+		return err
+	}
+	if appealInfo.Status == "approved" || appealInfo.Status == "rejected" {
+		return errno.NewErrNo(errno.ServiceRepeatAction, "the appeal have been handled")
+	}
+	exist, err = mysql.IsAdminRelationExist(svc.ctx, id, appealInfo.UserId)
+	if err != nil {
+		return err
+	}
+	if !exist {
+		return errno.NewErrNo(errno.ServiceNoAuthToDo, "No permission to handle the stu's appeal")
+	}
 	err = mysql.UpdateAppealInfo(svc.ctx, appeal)
 	if err != nil {
 		return err
 	}
 	// 由于提供了修改接口，这边不在异步进行
 	return nil
+}
+func (svc *AppealService) QueryBelongStuAppeal(status string) ([]*model.Appeal, int64, error) {
+	if status != "pending" && status != "approved" && status != "rejected" {
+		return nil, 0, errno.NewErrNo(errno.InternalDatabaseErrorCode, "error status type")
+	}
+	user_id := GetUserIDFromContext(svc.c)
+	stuList, err := mysql.QueryStuByAdmin(svc.ctx, user_id)
+	if err != nil {
+		return nil, -1, err
+	}
+	if len(stuList) == 0 {
+		return nil, 0, nil
+	}
+	appealInfoList := make([]*model.Appeal, 0)
+	var totalCount int64 = 0
+	for _, v := range stuList {
+		appeals, _, err := mysql.QueryAppealByUserId(svc.ctx, v) // events 是 []*model.Event
+		if err != nil {
+			return nil, -1, err
+		}
+		// 过滤符合状态的事件
+		for _, appeal := range appeals {
+			if appeal.Status == status {
+				appealInfoList = append(appealInfoList, appeal)
+				totalCount++
+			}
+		}
+	}
+	return appealInfoList, totalCount, nil
 }
