@@ -60,6 +60,34 @@ struct AddAdminObjectResponse{
     1: required model.BaseResp base,
 }
 
+struct UploadRewardFileRequest{
+    1: binary data (api.form="reward_file")
+}
+
+struct UploadRewardFileResponse{
+    1: required model.BaseResp base,
+    2: required string event_id,
+}
+
+struct UploadRewardRequest {
+    1: required string college,
+    2: required string event_name,
+    3: required string organizer,
+    4: required string event_time,
+    5: required string related_majors,
+    6: required string applicable_majors,
+    7: required string recognition_basis,
+    8: required string recognized_level,
+    9: required string is_active,
+}
+
+struct UploadRewardResponse {
+    1: required model.BaseResp base,
+    2: required string recognized_event_id,
+}
+
+
+
 service maintainService{
      QueryAllCollegeResponse QueryCollege(1: QueryAllCollegeRequest req) (api.get = "/api/admin/colleges"),
      QueryMajorByCollegeIdResponse QueryMajorByCollegeId(1: QueryMajorByCollegeIdRequest req) (api.get = "/api/admin/majors"),
@@ -67,5 +95,6 @@ service maintainService{
      UploadCollegeResponse UploadCollege(1: UploadCollegeRequest req) (api.post = "/api/admin/colleges"),
      AddUserResponse AddUser(1:AddUserRequest req)(api.post = "/api/admin/users"),
      AddAdminObjectResponse AddAdminObject(1:AddAdminObjectRequest req)(api.post = "/api/admin/users/permission"),
+     UploadRewardResponse UploadReward(1:UploadRewardRequest req)(api.post = "/api/admin/upload/reward/single")
 }
 
