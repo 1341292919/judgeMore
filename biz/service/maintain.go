@@ -205,3 +205,19 @@ func (svc *MaintainService) NewRecognizedEvent(re *model.RecognizedEvent) (*mode
 	taskqueue.AddUpdateRecognizedTask(svc.ctx, constants.StructKey)
 	return info, nil
 }
+
+func (svc *MaintainService) DeleteRecognizedEvent(id string) error {
+	exist, err := IsRecognizedEventExist(svc.ctx, id)
+	if err != nil {
+		return err
+	}
+	if !exist {
+		return errno.NewErrNo(errno.ServiceRecognizedNotExistCode, "Recognized Event Not Exist")
+	}
+	err = mysql.DeleteRecognized(svc.ctx, id)
+	if err != nil {
+		return err
+	}
+	taskqueue.AddUpdateRecognizedTask(svc.ctx, constants.StructKey)
+	return nil
+}

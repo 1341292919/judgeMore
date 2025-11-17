@@ -144,3 +144,15 @@ func IsCollegeExist(ctx context.Context, college string) (bool, error) {
 	}
 	return false, err
 }
+func IsRecognizedEventExist(ctx context.Context, recognizde_id string) (bool, error) {
+	re, err := QueryAllRecognizedReward(ctx)
+	if err != nil {
+		return false, nil
+	}
+	for _, m := range re {
+		if m.RecognizedEventId == recognizde_id {
+			return true, nil
+		}
+	}
+	return false, err
+}

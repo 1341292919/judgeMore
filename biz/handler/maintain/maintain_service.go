@@ -196,7 +196,11 @@ func DeleteRecognizeReward(ctx context.Context, c *app.RequestContext) {
 		pack.SendFailResponse(c, errno.NewErrNo(errno.ParamMissingErrorCode, "param missing:"+err.Error()))
 		return
 	}
-
+	err = service.NewMaintainService(ctx, c).DeleteRecognizedEvent(req.RecognizeRewardID)
+	if err != nil {
+		pack.SendFailResponse(c, errno.ConvertErr(err))
+		return
+	}
 	resp := new(maintain.DeleteRecognizeRewardResponse)
 	resp.Base = pack.BuildBaseResp(errno.Success)
 	pack.SendResponse(c, resp)

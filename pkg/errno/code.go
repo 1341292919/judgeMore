@@ -59,6 +59,7 @@ const (
 	ServiceMajorExistCode
 	ServiceMajorNotExistCode
 	ServiceGradeNotExistCode
+	ServiceRecognizedNotExistCode // 赛事认定表中不存在该赛事
 )
 
 // 服务错误
