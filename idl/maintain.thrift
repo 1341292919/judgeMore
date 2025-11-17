@@ -96,7 +96,6 @@ struct UploadRecognizedRewardRequest{
     6: required string applicable_majors //实际申请认定的专业
     7: required string recognition_basis //认定依据文件或标准
     8: required string recognized_level
-    9: required string is_active
 }
 struct UploadRecognizedRewardResponse{
         1: required model.BaseResp base,

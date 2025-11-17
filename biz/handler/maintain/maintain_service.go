@@ -176,7 +176,16 @@ func UploadRecognizedReward(ctx context.Context, c *app.RequestContext) {
 	}
 
 	resp := new(maintain.UploadRecognizedRewardResponse)
-	info, err := service.NewMaintainService(ctx, c).NewRecognizedEvent(&model.RecognizedEvent{})
+	info, err := service.NewMaintainService(ctx, c).NewRecognizedEvent(&model.RecognizedEvent{
+		RelatedMajors:       req.RelatedMajors,
+		RecognizedEventTime: req.EventTime,
+		RecognitionBasis:    req.RecognitionBasis,
+		RecognizedLevel:     req.RecognizedLevel,
+		RecognizedEventName: req.EventName,
+		College:             req.College,
+		Organizer:           req.Organizer,
+		ApplicableMajors:    req.ApplicableMajors,
+	})
 	if err != nil {
 		pack.SendFailResponse(c, errno.ConvertErr(err))
 		return

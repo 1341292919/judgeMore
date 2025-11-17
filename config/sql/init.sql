@@ -53,7 +53,7 @@ CREATE TABLE `recognized_events`  (
                                       PRIMARY KEY (`recognized_event_id`) USING BTREE,
                                       INDEX `idx_college_level`(`college` ASC, `recognized_level` ASC) USING BTREE,
                                       INDEX `idx_event_name`(`recognized_event_name` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 0 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '学院认可的奖项表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 80800 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '学院认可的奖项表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for event_rules

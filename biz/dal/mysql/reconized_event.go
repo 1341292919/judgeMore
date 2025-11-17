@@ -22,6 +22,10 @@ func QueryRecognizedEvent(ctx context.Context) ([]*model.RecognizedEvent, int64,
 	return buildRecognizedList(reconize_event), total, nil
 }
 func AddRecognizedEvent(ctx context.Context, re *model.RecognizedEvent) (*model.RecognizedEvent, error) {
+	isactive := 1
+	if re.IsActive == false {
+		isactive = 0
+	}
 	recognizedEvent := &RecognizedEvent{
 		RecognizedLevel:     re.RecognizedLevel,
 		RecognizedEventName: re.RecognizedEventName,
@@ -29,7 +33,7 @@ func AddRecognizedEvent(ctx context.Context, re *model.RecognizedEvent) (*model.
 		RecognitionBasis:    re.RecognitionBasis,
 		RelatedMajors:       re.RelatedMajors,
 		ApplicableMajors:    re.ApplicableMajors,
-		IsActive:            re.IsActive,
+		IsActive:            isactive,
 		Organizer:           re.Organizer,
 		College:             re.College,
 		CreatedAt:           time.Now(),
@@ -40,24 +44,28 @@ func AddRecognizedEvent(ctx context.Context, re *model.RecognizedEvent) (*model.
 		Create(&recognizedEvent).
 		Error
 	if err != nil {
-		return nil, errno.NewErrNo(errno.InternalDatabaseErrorCode, "mysql:failed to create new recgnized event")
+		return nil, errno.NewErrNo(errno.InternalDatabaseErrorCode, "mysql:failed to create new recgnized event"+err.Error())
 	}
 	return buildRecognizeEvent(recognizedEvent), nil
 }
 func DeleteRecognized(ctx context.Context, id string) error {
 	err := db.WithContext(ctx).
 		Table(constants.TableReconizedEvent).
-		Where("RecognizedEventId = ?", id).
-		Delete(&RecognizedEvent{IsActive: false}).
+		Where("recognized_event_id = ?", id).
+		Update("is_active", 0).
 		Error
 	if err != nil {
-		return errno.NewErrNo(errno.InternalDatabaseErrorCode, "mysql:failed to delete recgnized event")
+		return errno.NewErrNo(errno.InternalDatabaseErrorCode, "mysql:failed to delete recgnized event:"+err.Error())
 	}
 	return nil
 }
 
 func buildRecognizeEvent(data *RecognizedEvent) *model.RecognizedEvent {
-	return &model.RecognizedEvent{
+	isactive := true
+	if data.IsActive == 0 {
+		isactive = false
+	}
+	d := &model.RecognizedEvent{
 		RecognizedEventId:   data.RecognizedEventId,
 		RecognizedLevel:     data.RecognizedLevel,
 		RecognizedEventName: data.RecognizedEventName,
@@ -67,11 +75,12 @@ func buildRecognizeEvent(data *RecognizedEvent) *model.RecognizedEvent {
 		Organizer:           data.Organizer,
 		RelatedMajors:       data.RelatedMajors,
 		ApplicableMajors:    data.ApplicableMajors,
-		IsActive:            data.IsActive,
+		IsActive:            isactive,
 		UpdateAT:            data.UpdatedAt.Unix(),
 		CreateAT:            data.CreatedAt.Unix(),
 		DeleteAT:            0,
 	}
+	return d
 }
 func buildRecognizedList(data []*RecognizedEvent) []*model.RecognizedEvent {
 	r := make([]*model.RecognizedEvent, 0)

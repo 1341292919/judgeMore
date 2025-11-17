@@ -81,7 +81,15 @@ func QueryAllRecognizedReward(ctx context.Context) ([]*model.RecognizedEvent, er
 			return nil, err
 		}
 	}
-	return recognizedEventList, nil
+	// 筛去isactive == false的
+	filteredList := make([]*model.RecognizedEvent, 0, len(recognizedEventList))
+	for _, v := range recognizedEventList {
+		if v.IsActive {
+			filteredList = append(filteredList, v)
+		}
+	}
+
+	return filteredList, nil
 }
 
 // 同样提供一个获取权责关系的函数 用于其他业务
@@ -150,7 +158,7 @@ func IsRecognizedEventExist(ctx context.Context, recognizde_id string) (bool, er
 		return false, nil
 	}
 	for _, m := range re {
-		if m.RecognizedEventId == recognizde_id {
+		if m.RecognizedEventId == recognizde_id && m.IsActive == true {
 			return true, nil
 		}
 	}

@@ -3912,7 +3912,6 @@ type UploadRecognizedRewardRequest struct {
 	//认定依据文件或标准
 	RecognitionBasis string `thrift:"recognition_basis,7,required" form:"recognition_basis,required" json:"recognition_basis,required" query:"recognition_basis,required"`
 	RecognizedLevel  string `thrift:"recognized_level,8,required" form:"recognized_level,required" json:"recognized_level,required" query:"recognized_level,required"`
-	IsActive         string `thrift:"is_active,9,required" form:"is_active,required" json:"is_active,required" query:"is_active,required"`
 }
 
 func NewUploadRecognizedRewardRequest() *UploadRecognizedRewardRequest {
@@ -3954,10 +3953,6 @@ func (p *UploadRecognizedRewardRequest) GetRecognizedLevel() (v string) {
 	return p.RecognizedLevel
 }
 
-func (p *UploadRecognizedRewardRequest) GetIsActive() (v string) {
-	return p.IsActive
-}
-
 var fieldIDToName_UploadRecognizedRewardRequest = map[int16]string{
 	1: "college",
 	2: "event_name",
@@ -3967,7 +3962,6 @@ var fieldIDToName_UploadRecognizedRewardRequest = map[int16]string{
 	6: "applicable_majors",
 	7: "recognition_basis",
 	8: "recognized_level",
-	9: "is_active",
 }
 
 func (p *UploadRecognizedRewardRequest) Read(iprot thrift.TProtocol) (err error) {
@@ -3982,7 +3976,6 @@ func (p *UploadRecognizedRewardRequest) Read(iprot thrift.TProtocol) (err error)
 	var issetApplicableMajors bool = false
 	var issetRecognitionBasis bool = false
 	var issetRecognizedLevel bool = false
-	var issetIsActive bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -4070,15 +4063,6 @@ func (p *UploadRecognizedRewardRequest) Read(iprot thrift.TProtocol) (err error)
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
-		case 9:
-			if fieldTypeId == thrift.STRING {
-				if err = p.ReadField9(iprot); err != nil {
-					goto ReadFieldError
-				}
-				issetIsActive = true
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
 		default:
 			if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
@@ -4129,11 +4113,6 @@ func (p *UploadRecognizedRewardRequest) Read(iprot thrift.TProtocol) (err error)
 
 	if !issetRecognizedLevel {
 		fieldId = 8
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetIsActive {
-		fieldId = 9
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -4242,17 +4221,6 @@ func (p *UploadRecognizedRewardRequest) ReadField8(iprot thrift.TProtocol) error
 	p.RecognizedLevel = _field
 	return nil
 }
-func (p *UploadRecognizedRewardRequest) ReadField9(iprot thrift.TProtocol) error {
-
-	var _field string
-	if v, err := iprot.ReadString(); err != nil {
-		return err
-	} else {
-		_field = v
-	}
-	p.IsActive = _field
-	return nil
-}
 
 func (p *UploadRecognizedRewardRequest) Write(oprot thrift.TProtocol) (err error) {
 
@@ -4291,10 +4259,6 @@ func (p *UploadRecognizedRewardRequest) Write(oprot thrift.TProtocol) (err error
 		}
 		if err = p.writeField8(oprot); err != nil {
 			fieldId = 8
-			goto WriteFieldError
-		}
-		if err = p.writeField9(oprot); err != nil {
-			fieldId = 9
 			goto WriteFieldError
 		}
 	}
@@ -4449,23 +4413,6 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 8 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 8 end error: ", p), err)
-}
-
-func (p *UploadRecognizedRewardRequest) writeField9(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("is_active", thrift.STRING, 9); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.IsActive); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 9 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 9 end error: ", p), err)
 }
 
 func (p *UploadRecognizedRewardRequest) String() string {
