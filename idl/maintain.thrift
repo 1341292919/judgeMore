@@ -120,12 +120,13 @@ struct QueryRecognizeRewardResponse{
 
 // 上传积分权重的接口
 struct UploadRuleRequest{
-    1: required string event_level,
-    2: required string event_influence,
-    3: required double event_weight,
-    4: required i64 integral,
-    5: required string award_level,
-    6: required double award_level_weight,
+    1: required i64 recognized_event_id,
+    2: required string event_level, // 国际级|国家级|省级|校级
+    3: required string  event_weight, // 赛事权重系数
+    4: required i64 integral, // 对应基础积分
+    5: required string rule_desc, // 规则说明
+    6: required string award_level, // 特等奖/一等奖/二等奖/三等奖/优秀奖
+    7: required double award_level_weight, // 奖项权重系数
 }
 
 struct UploadRuleResponse{
