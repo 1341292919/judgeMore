@@ -15,13 +15,14 @@ const mapping = `{
 	"mappings": {
 		"properties": {
 			"id": { "type": "long" },
-			"name": {
+			"recognized_event_name": {
 				"type": "text",
 				"analyzer": "my_analyzer"
 			},
-			"category_id": { "type": "long" },
-			"price": { "type": "double" },
-			"shipping": { "type": "boolean" }
+			"organizer": {
+				"type": "text",
+				"analyzer": "my_analyzer"
+			},
 		}
 	}
 }`

@@ -12,4 +12,6 @@ func Init() {
 	Work(constants.EventKey)
 	Work(constants.AppealKey)
 	Work(constants.StructKey)
+	Work(constants.UserKey)
+	Work(constants.REKey)
 }

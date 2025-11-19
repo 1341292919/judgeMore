@@ -8,4 +8,5 @@ const (
 	AppealKey = "appeal"
 	StructKey = "structure"
 	UserKey   = "user"
+	REKey     = "recognized_event"
 )

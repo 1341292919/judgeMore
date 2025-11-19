@@ -58,39 +58,6 @@ func QueryAllCollege(ctx context.Context) ([]*model.College, error) {
 	return collegeList, nil
 }
 
-// 查询认可奖项的函数
-func QueryAllRecognizedReward(ctx context.Context) ([]*model.RecognizedEvent, error) {
-	exist, err := cache.IsRecognizeEventExist(ctx)
-	if err != nil {
-		return nil, err
-	}
-	var recognizedEventList []*model.RecognizedEvent
-	if !exist {
-		// db 载入 redis
-		recognizedEventList, _, err = mysql.QueryRecognizedEvent(ctx)
-		if err != nil {
-			return nil, err
-		}
-		err = cache.RecognizeEventToCache(ctx, recognizedEventList)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		recognizedEventList, err = cache.QueryAllRecognizeEvent(ctx)
-		if err != nil {
-			return nil, err
-		}
-	}
-	// 筛去isactive == false的
-	filteredList := make([]*model.RecognizedEvent, 0, len(recognizedEventList))
-	for _, v := range recognizedEventList {
-		if v.IsActive {
-			filteredList = append(filteredList, v)
-		}
-	}
-	return filteredList, nil
-}
-
 // 同样提供一个获取权责关系的函数 用于其他业务
 func QueryAllRelation(ctx context.Context, user_id string) ([]*model.Relation, error) {
 	exist, err := cache.IsRelationExist(ctx)
@@ -146,18 +113,6 @@ func IsCollegeExist(ctx context.Context, college string) (bool, error) {
 	}
 	for _, m := range collegelist {
 		if m.CollegeName == college {
-			return true, nil
-		}
-	}
-	return false, err
-}
-func IsRecognizedEventExist(ctx context.Context, recognizde_id string) (bool, error) {
-	re, err := QueryAllRecognizedReward(ctx)
-	if err != nil {
-		return false, nil
-	}
-	for _, m := range re {
-		if m.RecognizedEventId == recognizde_id && m.IsActive == true {
 			return true, nil
 		}
 	}

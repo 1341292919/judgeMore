@@ -216,8 +216,8 @@ func CheckEvent(ctx context.Context, eventInfo *model.Event) error {
 		return errno.NewErrNo(errno.ServiceEventNotMatchCode, "reward not match")
 	}
 	return nil
-
 }
+
 func (svc *EventService) QueryBelongStuEvent(status string) ([]*model.Event, int64, error) {
 	// 这边由token提取 前面jwt中间件会将学生token拦在外面 保证权限够高
 	if status != "待审核" && status != "已审核" && status != "驳回" {

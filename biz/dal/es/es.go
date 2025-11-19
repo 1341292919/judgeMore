@@ -26,6 +26,15 @@ func CreateIndex(ctx context.Context, indexName string) error {
 	return nil
 }
 
+func IsIndexDataExist(ctx context.Context, indexName string) (bool, error) {
+	count, err := els.Count(indexName).Do(ctx)
+	if err != nil {
+		return false, errno.Errorf(errno.InternalESErrorCode, "Elastic.IsIndexEmpty failed: %v", err)
+	}
+	return count != 0, nil
+}
+
+// 当存在该记录时，es的应对策略是用旧的去覆盖
 func AddItem(ctx context.Context, indexName string, re *model.RecognizedEvent) error {
 	_, err := els.Index().Index(indexName).
 		Id(fmt.Sprintf("%s", re.RecognizedEventId)).
@@ -36,6 +45,7 @@ func AddItem(ctx context.Context, indexName string, re *model.RecognizedEvent) e
 	return nil
 }
 
+// 当该删除的记录不存在时，err也回事nil
 func RemoveItem(ctx context.Context, indexName string, id string) error {
 	_, err := els.Delete().Index(indexName).Id(fmt.Sprintf("%s", id)).Do(ctx)
 	if err != nil {
@@ -73,7 +83,7 @@ func BuildQuery(req *model.ViewRecognizedRewardReq) *elastic.BoolQuery {
 
 	// 事件名称查询
 	if req.EventName != nil && req.GetEventName() != "" {
-		query = query.Must(elastic.NewMatchQuery("name", req.GetEventName()))
+		query = query.Must(elastic.NewMatchQuery("recognized_event_name", req.GetEventName()))
 		hasCondition = true
 	}
 
@@ -85,7 +95,7 @@ func BuildQuery(req *model.ViewRecognizedRewardReq) *elastic.BoolQuery {
 
 	// 识别事件ID查询
 	if req.RecognizedEventId != nil && req.GetRecognizedEventId() != "" {
-		query = query.Must(elastic.NewMatchQuery("recognized_event_id", req.GetRecognizedEventId()))
+		query = query.Must(elastic.NewMatchQuery("id", req.GetRecognizedEventId()))
 		hasCondition = true
 	}
 
