@@ -2,7 +2,7 @@ package cache
 
 import (
 	"github.com/redis/go-redis/v9"
-	client "judgeMore/pkg/ba"
+	client "judgeMore/pkg/base"
 	"judgeMore/pkg/constants"
 )
 

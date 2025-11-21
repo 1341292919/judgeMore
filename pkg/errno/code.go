@@ -45,7 +45,8 @@ const (
 	ServiceEventUnChangedCode // 表示未经过申诉，无法直接修改该材料
 	ServiceEventNotMatchCode  // 上传的材料没被认定
 	ServiceNoAuthToDo         // 辅导员试图对不属于自己管辖的学生的材料进行审核或处理申诉
-	ServiceRepeatAction       // 辅导员试图对不属于自己管辖的学生的材料进行审核或处理申诉
+	ServiceRepeatAction       // 辅导员试图对已经经过审核的材料进行审核通过或驳回
+	ServiceCheckNotAllowCode  // 辅导员试图对系统判定认定的奖项做审核通过操作
 	// resultRecord
 	ServiceRecordNotExistCode // 该记录不存在
 	// appeal
@@ -68,5 +69,6 @@ const (
 	InterFileProcessErrorCode                //文件处理错误
 	InternalDatabaseErrorCode
 	InternalRedisErrorCode // Redis错误
+	InternalESErrorCode    // Redis错误
 	InterConfigErrorCode
 )

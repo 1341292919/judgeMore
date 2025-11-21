@@ -1601,8 +1601,8 @@ func (p *QueryEventByStuIdResponse) String() string {
 }
 
 type UpdateEventStatusRequest struct {
-	EventID       string `thrift:"event_id,1,required" form:"event_id,required" json:"event_id,required" query:"event_id,required"`
-	ExamineStatus int64  `thrift:"examine_status,2,required" form:"examine_status,required" json:"examine_status,required" query:"examine_status,required"`
+	EventID        string `thrift:"event_id,1,required" form:"event_id,required" json:"event_id,required" query:"event_id,required"`
+	ExamineResults int64  `thrift:"examine_results,2,required" form:"examine_results,required" json:"examine_results,required" query:"examine_results,required"`
 }
 
 func NewUpdateEventStatusRequest() *UpdateEventStatusRequest {
@@ -1616,13 +1616,13 @@ func (p *UpdateEventStatusRequest) GetEventID() (v string) {
 	return p.EventID
 }
 
-func (p *UpdateEventStatusRequest) GetExamineStatus() (v int64) {
-	return p.ExamineStatus
+func (p *UpdateEventStatusRequest) GetExamineResults() (v int64) {
+	return p.ExamineResults
 }
 
 var fieldIDToName_UpdateEventStatusRequest = map[int16]string{
 	1: "event_id",
-	2: "examine_status",
+	2: "examine_results",
 }
 
 func (p *UpdateEventStatusRequest) Read(iprot thrift.TProtocol) (err error) {
@@ -1630,7 +1630,7 @@ func (p *UpdateEventStatusRequest) Read(iprot thrift.TProtocol) (err error) {
 	var fieldTypeId thrift.TType
 	var fieldId int16
 	var issetEventID bool = false
-	var issetExamineStatus bool = false
+	var issetExamineResults bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -1660,7 +1660,7 @@ func (p *UpdateEventStatusRequest) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetExamineStatus = true
+				issetExamineResults = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -1682,7 +1682,7 @@ func (p *UpdateEventStatusRequest) Read(iprot thrift.TProtocol) (err error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetExamineStatus {
+	if !issetExamineResults {
 		fieldId = 2
 		goto RequiredFieldNotSetError
 	}
@@ -1723,7 +1723,7 @@ func (p *UpdateEventStatusRequest) ReadField2(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.ExamineStatus = _field
+	p.ExamineResults = _field
 	return nil
 }
 
@@ -1778,10 +1778,10 @@ WriteFieldEndError:
 }
 
 func (p *UpdateEventStatusRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("examine_status", thrift.I64, 2); err != nil {
+	if err = oprot.WriteFieldBegin("examine_results", thrift.I64, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.ExamineStatus); err != nil {
+	if err := oprot.WriteI64(p.ExamineResults); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {

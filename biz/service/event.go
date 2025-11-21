@@ -81,6 +81,9 @@ func (svc *EventService) UpdateEventStatus(event_id string, status int64) (*mode
 	if eventInfo.MaterialStatus == "已审核" || eventInfo.MaterialStatus == "驳回" {
 		return nil, errno.NewErrNo(errno.ServiceRepeatAction, "the martial have been checked")
 	}
+	if eventInfo.MaterialStatus == "未被认定" && status == 1 {
+		return nil, errno.NewErrNo(errno.ServiceCheckNotAllowCode, "the martial not in recognize cannot to approved")
+	}
 	exist, err = mysql.IsAdminRelationExist(svc.ctx, admin_id, eventInfo.Uid)
 	if err != nil {
 		return nil, err
@@ -122,6 +125,7 @@ func (svc *EventService) UploadEventFile(file *multipart.FileHeader) (string, er
 		return "", errno.NewErrNo(errno.ServiceImageNotAwardCode, "image not a award or certificate")
 	}
 	eventInfo := &model.Event{
+		RecognizeId:    "0",
 		Uid:            stu_id,
 		EventName:      Info.EventName,
 		EventOrganizer: Info.EventSponsor,
@@ -129,21 +133,17 @@ func (svc *EventService) UploadEventFile(file *multipart.FileHeader) (string, er
 		AwardTime:      Info.EventTime,
 		AutoExtracted:  true,
 	}
-	// 材料云端存储
-	url, err := oss.Upload(filePath, fileName, stu_id, constants.OssOrigin)
+	url, err := oss.Upload(filePath, fileName, eventInfo.Uid, constants.OssOrigin)
 	if err != nil {
 		return "", fmt.Errorf("upload file failed: %w", err)
 	}
 	eventInfo.MaterialUrl = url
-	// 存入数据库 不进行check则无法完善相关材料。但不匹配也应该存下该材料
-	err = CheckEvent(svc.ctx, eventInfo)
-	if err != nil {
-		return "", err
-	}
 	event_id, err := mysql.CreateNewEvent(svc.ctx, eventInfo)
 	if err != nil {
 		return "", err
 	}
+	eventInfo.EventId = event_id
+	taskqueue.AddEventStorageTask(svc.ctx, constants.EventKey, eventInfo)
 	return event_id, nil
 }
 
@@ -190,7 +190,11 @@ func (svc *EventService) UpdateEventLevel(event_id string, level string, appeal_
 }
 
 func CheckEvent(ctx context.Context, eventInfo *model.Event) error {
-	wholeEvent, err := QueryAllRecognizedReward(ctx)
+	req := &model.ViewRecognizedRewardReq{
+		EventName:     &eventInfo.EventName,
+		OrganizerName: &eventInfo.EventOrganizer,
+	}
+	Event, err := SearchRecognizedEvent(ctx, req)
 	if err != nil {
 		return err
 	}
@@ -199,7 +203,7 @@ func CheckEvent(ctx context.Context, eventInfo *model.Event) error {
 	var bestMatch *model.RecognizedEvent
 	var highestSimilarity float64
 	// 遍历所有事件，计算相似度
-	for _, v := range wholeEvent {
+	for _, v := range Event {
 		similarity := strsim.Compare(v.RecognizedEventName, eventInfo.EventName)
 		// 如果相似度高于阈值且是当前最高相似度
 		if similarity >= minSimilarity && similarity > highestSimilarity {
@@ -216,11 +220,11 @@ func CheckEvent(ctx context.Context, eventInfo *model.Event) error {
 		return errno.NewErrNo(errno.ServiceEventNotMatchCode, "reward not match")
 	}
 	return nil
-
 }
+
 func (svc *EventService) QueryBelongStuEvent(status string) ([]*model.Event, int64, error) {
 	// 这边由token提取 前面jwt中间件会将学生token拦在外面 保证权限够高
-	if status != "待审核" && status != "已审核" && status != "驳回" {
+	if status != "待审核" && status != "已审核" && status != "驳回" && status != "未被认定" {
 		return nil, 0, errno.NewErrNo(errno.InternalDatabaseErrorCode, "error status type")
 	}
 	user_id := GetUserIDFromContext(svc.c)

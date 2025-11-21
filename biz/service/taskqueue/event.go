@@ -3,12 +3,16 @@ package taskqueue
 import (
 	"context"
 	"fmt"
+	"github.com/antlabs/strsim"
 	"github.com/bytedance/gopkg/util/logger"
 	"judgeMore/biz/dal/cache"
+	"judgeMore/biz/dal/es"
 	"judgeMore/biz/dal/mysql"
 	"judgeMore/biz/service/model"
+	"judgeMore/pkg/constants"
 	"judgeMore/pkg/errno"
 	"judgeMore/pkg/taskqueue"
+	"judgeMore/pkg/utils"
 )
 
 // 加入任务队列
@@ -22,8 +26,53 @@ func AddSyncScoreTask(ctx context.Context, key, event_id string) {
 		return syncChangedScore(ctx, event_id)
 	}})
 }
+func AddEventStorageTask(ctx context.Context, key string, event *model.Event) {
+	taskQueue.Add(key, taskqueue.QueueTask{Execute: func() error {
+		return storageEvent(ctx, event)
+	}})
+}
+func storageEvent(ctx context.Context, event *model.Event) error {
+	// 查询认定奖项
+	req := &model.ViewRecognizedRewardReq{
+		EventName:     &event.EventName,
+		OrganizerName: &event.EventOrganizer,
+	}
+	Event, err := searchRecognizedEvent(ctx, req)
+	if err != nil {
+		return err
+	}
+	// 设置最低相似度阈值
+	const minSimilarity = 0.5
+	var bestMatch *model.RecognizedEvent
+	var highestSimilarity float64
+	// 遍历所有事件，计算相似度
+	for _, v := range Event {
+		similarity := strsim.Compare(v.RecognizedEventName, event.EventName)
+		// 如果相似度高于阈值且是当前最高相似度
+		if similarity >= minSimilarity && similarity > highestSimilarity {
+			highestSimilarity = similarity
+			bestMatch = v
+		}
+	}
+	// 如果找到了符合条件的匹配
+	if bestMatch != nil {
+		event.RecognizeId = bestMatch.RecognizedEventId
+		event.EventLevel = bestMatch.RecognizedLevel                 //直接根据认定赛事表来确定，可以不用做匹配
+		event.AwardLevel = utils.AppraisalReward(event.AwardContent) //这里再做一次模糊鉴定
+		event.MaterialStatus = "待审核"
+	} else {
+		event.RecognizeId = "-1"
+		event.MaterialStatus = "未被认定"
+	}
 
-// 这边 中间报错了怎么办？
+	err = mysql.UpdateEventMessage(ctx, event)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// 计算积分
 func calculateScore(ctx context.Context, event_id string) error {
 	exist, err := mysql.IsScoreRecordExist_Event(ctx, event_id)
 	if err != nil {
@@ -187,4 +236,26 @@ func syncChangedScore(ctx context.Context, event_id string) error {
 
 func Work(key string) {
 	taskQueue.Start()
+}
+
+func searchRecognizedEvent(ctx context.Context, req *model.ViewRecognizedRewardReq) ([]*model.RecognizedEvent, error) {
+	exist, err := es.IsIndexDataExist(ctx, constants.IndexName)
+	if err != nil {
+		return nil, err
+	}
+	var reList []*model.RecognizedEvent
+	if !exist {
+		reList, _, err = mysql.QueryRecognizedEvent(ctx)
+		for _, v := range reList {
+			err = es.AddItem(ctx, constants.IndexName, v)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	result, _, err := es.SearchItems(ctx, constants.IndexName, req)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }

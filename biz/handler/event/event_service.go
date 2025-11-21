@@ -4,6 +4,7 @@ package event
 
 import (
 	"context"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"judgeMore/biz/pack"
 	"judgeMore/biz/service"
 	"judgeMore/pkg/errno"
@@ -111,7 +112,8 @@ func UpdateEventStatus(ctx context.Context, c *app.RequestContext) {
 	}
 
 	resp := new(event.UpdateEventStatusResponse)
-	userInfo, err := service.NewEventService(ctx, c).UpdateEventStatus(req.EventID, req.ExamineStatus)
+	hlog.Info(req.ExamineResults)
+	userInfo, err := service.NewEventService(ctx, c).UpdateEventStatus(req.EventID, req.ExamineResults)
 	if err != nil {
 		pack.SendFailResponse(c, errno.ConvertErr(err))
 		return

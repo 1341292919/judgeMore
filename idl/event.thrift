@@ -36,7 +36,7 @@ struct QueryEventByStuIdResponse{
 }
 struct UpdateEventStatusRequest{
     1: required string event_id,
-    2: required i64 examine_status,
+    2: required i64 examine_results,
 }
 struct UpdateEventStatusResponse{
      1: required model.BaseResp base,
