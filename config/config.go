@@ -9,24 +9,13 @@ import (
 )
 
 var (
-	Server        *server
 	Mysql         *mySQL
-	Snowflake     *snowflake
 	Service       *service
-	Jaeger        *jaeger
-	Etcd          *etcd
 	Redis         *redis
-	DefaultUser   *defaultUser
 	Elasticsearch *elasticsearch
-	Kafka         *kafka
-	Volcengine    *volcengine
-	Upyun         *upyun
 	Smtp          *smtp
 	OpenAI        *openAI
 	Oss           *oss
-	Rocketmq      *rocketmq
-	Otel          *otel
-	Administrator *administrator
 	runtimeViper  = viper.New()
 )
 
