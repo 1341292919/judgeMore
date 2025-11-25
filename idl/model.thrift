@@ -126,7 +126,7 @@ struct Rule{
     8: string award_level,
     10: string created_at,        // 创建时间
     11: string updated_at,        // 更新时间
-    12: string deleted_at         // 删除时
+    12: string deleted_at ,        // 删除时
 }
 
 struct RuleList{
