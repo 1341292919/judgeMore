@@ -87,15 +87,22 @@ func (svc *AppealService) QueryAppealById(appeal_id string) (*model.Appeal, erro
 	if !exist {
 		return nil, errno.NewErrNo(errno.ServiceAppealNotExistCode, "appeal not exist")
 	}
-	stu_id := GetUserIDFromContext(svc.c)
-	// 检验appeal属于user
 	appeal, err := mysql.QueryAppealById(svc.ctx, appeal_id)
 	if err != nil {
 		return nil, err
 	}
-	if appeal.UserId != stu_id {
-		return nil, errno.NewErrNo(errno.ServiceUserErrorAppealCode, "user have not permission to query appeal")
+	score, err := mysql.QueryScoreRecordByScoreId(svc.ctx, appeal.ResultId)
+	if err != nil {
+		return nil, err
 	}
+	appeal.Score = score.FinalIntegral
+	appeal.EventId = score.EventId
+	event, err := mysql.GetEventInfoById(svc.ctx, appeal.EventId)
+	if err != nil {
+		return nil, err
+	}
+	appeal.EventName = event.EventName
+	appeal.AwardLevel = event.AwardLevel
 	return appeal, nil
 }
 
@@ -104,6 +111,10 @@ func (svc *AppealService) QueryStuAllAppeals() ([]*model.Appeal, int64, error) {
 	appeals, count, err := mysql.QueryAppealByUserId(svc.ctx, stu_id)
 	if err != nil {
 		return nil, -1, err
+	}
+	err = svc.CompleteAppealList(appeals)
+	if err != nil {
+		return nil, 0, err
 	}
 	return appeals, count, nil
 }
@@ -169,5 +180,27 @@ func (svc *AppealService) QueryBelongStuAppeal(status string) ([]*model.Appeal, 
 			}
 		}
 	}
+	err = svc.CompleteAppealList(appealInfoList)
+	if err != nil {
+		return nil, 0, err
+	}
 	return appealInfoList, totalCount, nil
+}
+
+func (svc *AppealService) CompleteAppealList(data []*model.Appeal) error {
+	for i, _ := range data {
+		score, err := mysql.QueryScoreRecordByScoreId(svc.ctx, data[i].ResultId)
+		if err != nil {
+			return err
+		}
+		data[i].Score = score.FinalIntegral
+		data[i].EventId = score.EventId
+		event, err := mysql.GetEventInfoById(svc.ctx, data[i].EventId)
+		if err != nil {
+			return err
+		}
+		data[i].EventName = event.EventName
+		data[i].AwardLevel = event.AwardLevel
+	}
+	return nil
 }

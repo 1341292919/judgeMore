@@ -3,6 +3,11 @@ package model
 type Appeal struct {
 	AppealId       string
 	ResultId       string
+	EventId        string
+	EventName      string
+	EventLevel     string
+	AwardLevel     string
+	Score          float64
 	UserId         string
 	AppealType     string
 	AppealReason   string
