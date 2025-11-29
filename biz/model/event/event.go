@@ -2176,9 +2176,9 @@ func (p *UpdateEventStatusResponse) String() string {
 }
 
 type ReviseEventLevelRequest struct {
-	EventID    string `thrift:"event_id,1,required" form:"event_id,required" json:"event_id,required" query:"event_id,required"`
-	EventLevel string `thrift:"event_level,2,required" form:"event_level,required" json:"event_level,required" query:"event_level,required"`
-	AppealID   string `thrift:"appeal_id,3,required" form:"appeal_id,required" json:"appeal_id,required" query:"appeal_id,required"`
+	EventID    string  `thrift:"event_id,1,required" form:"event_id,required" json:"event_id,required" query:"event_id,required"`
+	EventLevel *string `thrift:"event_level,2,optional" form:"event_level" json:"event_level,omitempty" query:"event_level"`
+	AwardLevel *string `thrift:"award_level,4,optional" form:"award_level" json:"award_level,omitempty" query:"award_level"`
 }
 
 func NewReviseEventLevelRequest() *ReviseEventLevelRequest {
@@ -2192,18 +2192,36 @@ func (p *ReviseEventLevelRequest) GetEventID() (v string) {
 	return p.EventID
 }
 
+var ReviseEventLevelRequest_EventLevel_DEFAULT string
+
 func (p *ReviseEventLevelRequest) GetEventLevel() (v string) {
-	return p.EventLevel
+	if !p.IsSetEventLevel() {
+		return ReviseEventLevelRequest_EventLevel_DEFAULT
+	}
+	return *p.EventLevel
 }
 
-func (p *ReviseEventLevelRequest) GetAppealID() (v string) {
-	return p.AppealID
+var ReviseEventLevelRequest_AwardLevel_DEFAULT string
+
+func (p *ReviseEventLevelRequest) GetAwardLevel() (v string) {
+	if !p.IsSetAwardLevel() {
+		return ReviseEventLevelRequest_AwardLevel_DEFAULT
+	}
+	return *p.AwardLevel
 }
 
 var fieldIDToName_ReviseEventLevelRequest = map[int16]string{
 	1: "event_id",
 	2: "event_level",
-	3: "appeal_id",
+	4: "award_level",
+}
+
+func (p *ReviseEventLevelRequest) IsSetEventLevel() bool {
+	return p.EventLevel != nil
+}
+
+func (p *ReviseEventLevelRequest) IsSetAwardLevel() bool {
+	return p.AwardLevel != nil
 }
 
 func (p *ReviseEventLevelRequest) Read(iprot thrift.TProtocol) (err error) {
@@ -2211,8 +2229,6 @@ func (p *ReviseEventLevelRequest) Read(iprot thrift.TProtocol) (err error) {
 	var fieldTypeId thrift.TType
 	var fieldId int16
 	var issetEventID bool = false
-	var issetEventLevel bool = false
-	var issetAppealID bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -2242,16 +2258,14 @@ func (p *ReviseEventLevelRequest) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetEventLevel = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
-		case 3:
+		case 4:
 			if fieldTypeId == thrift.STRING {
-				if err = p.ReadField3(iprot); err != nil {
+				if err = p.ReadField4(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetAppealID = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -2270,16 +2284,6 @@ func (p *ReviseEventLevelRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	if !issetEventID {
 		fieldId = 1
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetEventLevel {
-		fieldId = 2
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetAppealID {
-		fieldId = 3
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -2313,24 +2317,24 @@ func (p *ReviseEventLevelRequest) ReadField1(iprot thrift.TProtocol) error {
 }
 func (p *ReviseEventLevelRequest) ReadField2(iprot thrift.TProtocol) error {
 
-	var _field string
+	var _field *string
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		_field = v
+		_field = &v
 	}
 	p.EventLevel = _field
 	return nil
 }
-func (p *ReviseEventLevelRequest) ReadField3(iprot thrift.TProtocol) error {
+func (p *ReviseEventLevelRequest) ReadField4(iprot thrift.TProtocol) error {
 
-	var _field string
+	var _field *string
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		_field = v
+		_field = &v
 	}
-	p.AppealID = _field
+	p.AwardLevel = _field
 	return nil
 }
 
@@ -2349,8 +2353,8 @@ func (p *ReviseEventLevelRequest) Write(oprot thrift.TProtocol) (err error) {
 			fieldId = 2
 			goto WriteFieldError
 		}
-		if err = p.writeField3(oprot); err != nil {
-			fieldId = 3
+		if err = p.writeField4(oprot); err != nil {
+			fieldId = 4
 			goto WriteFieldError
 		}
 	}
@@ -2389,14 +2393,16 @@ WriteFieldEndError:
 }
 
 func (p *ReviseEventLevelRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("event_level", thrift.STRING, 2); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.EventLevel); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
+	if p.IsSetEventLevel() {
+		if err = oprot.WriteFieldBegin("event_level", thrift.STRING, 2); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.EventLevel); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
 	}
 	return nil
 WriteFieldBeginError:
@@ -2405,21 +2411,23 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *ReviseEventLevelRequest) writeField3(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("appeal_id", thrift.STRING, 3); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.AppealID); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
+func (p *ReviseEventLevelRequest) writeField4(oprot thrift.TProtocol) (err error) {
+	if p.IsSetAwardLevel() {
+		if err = oprot.WriteFieldBegin("award_level", thrift.STRING, 4); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.AwardLevel); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
 	}
 	return nil
 WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 begin error: ", p), err)
 WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
 }
 
 func (p *ReviseEventLevelRequest) String() string {

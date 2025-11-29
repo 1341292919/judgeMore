@@ -47,8 +47,8 @@ struct UpdateEventStatusResponse{
 }
 struct ReviseEventLevelRequest{
     1: required string event_id,
-    2: required string event_level,
-    3 :required string appeal_id,
+    2: optional string event_level,
+    4: optional string award_level,
 }
 struct ReviseEventLevelResponse{
      1: required model.BaseResp base,

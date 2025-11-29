@@ -47,6 +47,7 @@ const (
 	ServiceNoAuthToDo         // 辅导员试图对不属于自己管辖的学生的材料进行审核或处理申诉
 	ServiceRepeatAction       // 辅导员试图对已经经过审核的材料进行审核通过或驳回
 	ServiceCheckNotAllowCode  // 辅导员试图对系统判定认定的奖项做审核通过操作
+	ServiceAwardNotAllowCode  // 奖项级别不认可
 	// resultRecord
 	ServiceRecordNotExistCode // 该记录不存在
 	// appeal

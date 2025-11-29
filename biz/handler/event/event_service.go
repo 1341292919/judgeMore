@@ -141,7 +141,7 @@ func ReviseEventLevel(ctx context.Context, c *app.RequestContext) {
 	}
 
 	resp := new(event.ReviseEventLevelResponse)
-	err = service.NewEventService(ctx, c).UpdateEventLevel(req.EventID, req.EventLevel, req.AppealID)
+	err = service.NewEventService(ctx, c).UpdateEventLevel(req.EventID, req.GetEventLevel(), req.GetAwardLevel())
 	if err != nil {
 		pack.SendFailResponse(c, errno.ConvertErr(err))
 		return

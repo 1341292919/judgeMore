@@ -155,8 +155,17 @@ func (svc *EventService) UploadEventFile(file *multipart.FileHeader) (string, er
 	return event_id, nil
 }
 
-func (svc *EventService) UpdateEventLevel(event_id string, level string, appeal_id string) error {
+func (svc *EventService) UpdateEventLevel(event_id, level, awardLevel string) error {
 	// 材料存在
+	if awardLevel == "" && level == "" {
+		return errno.NewErrNo(errno.ParamVerifyErrorCode, "eventLevel,awardLevel is empty")
+	}
+	if awardLevel != "" && !checkAward(awardLevel) {
+		return errno.NewErrNo(errno.ServiceAwardNotAllowCode, "invalid award,valid award level:特等奖、一等奖、二等奖、三等级、优秀奖")
+	}
+	if level != "" && !checkEvent(level) {
+		return errno.NewErrNo(errno.ServiceAwardNotAllowCode, "invalid eventLevel,valid award level:国际级，国家级，省级，商业赛事")
+	}
 	exist, err := mysql.IsEventExist(svc.ctx, event_id)
 	if err != nil {
 		return err
@@ -164,33 +173,31 @@ func (svc *EventService) UpdateEventLevel(event_id string, level string, appeal_
 	if !exist {
 		return errno.NewErrNo(errno.ServiceEventNotExistCode, "event not exist")
 	}
-	// 材料是经过申诉
-	exist, err = mysql.IsAppealExistByAppealId(svc.ctx, appeal_id)
+	if level != "" {
+		err = mysql.UpdateEventLevel(svc.ctx, event_id, level)
+		if err != nil {
+			return err
+		}
+	}
+	if awardLevel != "" {
+		err = mysql.UpdateAwardLevel(svc.ctx, event_id, awardLevel)
+		if err != nil {
+			return err
+		}
+	}
+	eventInfo, err := mysql.GetEventInfoById(svc.ctx, event_id)
 	if err != nil {
 		return err
 	}
-	if !exist {
-		return errno.NewErrNo(errno.ServiceEventUnChangedCode, "appeal not exist cannot change Event")
-	}
-	// 联查的话要查很远 但目前这样没办法判断申诉是否已完成 后期加上权限的问题会爆发一系列问题
-	recordInfo, err := mysql.QueryScoreRecordByEventId(svc.ctx, event_id)
-	if err != nil {
-		return err
-	}
-	if recordInfo.AppealId != appeal_id {
-		return errno.NewErrNo(errno.ServiceEventUnChangedCode, "appeal not match the event")
-	}
-	user_id := GetUserIDFromContext(svc.c)
-	exist, err = mysql.IsAdminRelationExist(svc.ctx, user_id, recordInfo.UserId)
-	if err != nil {
-		return err
-	}
-	if !exist {
-		return errno.NewErrNo(errno.ServiceNoAuthToDo, "No permission to update the stu's appeal")
-	}
-	err = mysql.UpdateEventLevel(svc.ctx, event_id, level)
-	if err != nil {
-		return err
+	if eventInfo.MaterialStatus == "未被认定" {
+		if eventInfo.EventLevel != "" && eventInfo.AwardLevel != "" {
+			_, err = mysql.UpdateEventStatus(svc.ctx, event_id, 1)
+			if err != nil {
+				return err
+			}
+			taskqueue.AddScoreTask(svc.ctx, constants.EventKey, event_id)
+			return nil
+		}
 	}
 	// 再次异步计算
 	taskqueue.AddSyncScoreTask(svc.ctx, constants.EventKey, event_id)
@@ -277,4 +284,17 @@ func (svc *EventService) QueryBelongStuEvent(status string) ([]*model.Event, int
 		}
 	}
 	return eventInfoList, totalCount, nil
+}
+
+func checkAward(awardLevel string) bool {
+	if awardLevel != "特等奖" && awardLevel != "一等奖" && awardLevel != "二等奖" && awardLevel != "三等奖" && awardLevel != "优秀奖" {
+		return false
+	}
+	return true
+}
+func checkEvent(eventLevel string) bool {
+	if eventLevel != "国际级" && eventLevel != "国家级" && eventLevel != "省级" {
+		return false
+	}
+	return true
 }

@@ -123,6 +123,17 @@ func UpdateEventLevel(ctx context.Context, event_id string, level string) error 
 	}
 	return nil
 }
+func UpdateAwardLevel(ctx context.Context, event_id string, level string) error {
+	err := db.WithContext(ctx).
+		Table(constants.TableEvent).
+		Where("event_id = ?", event_id).
+		Update("award_level", level).
+		Error
+	if err != nil {
+		return errno.Errorf(errno.InternalDatabaseErrorCode, "mysql: failed to update userInfo: %v", err)
+	}
+	return nil
+}
 
 // 用于追加异步云端上传和验证奖项内容
 func UpdateEventMessage(ctx context.Context, event *model.Event) error {
