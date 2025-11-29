@@ -359,9 +359,11 @@ func (p *UploadEventFileResponse) String() string {
 }
 
 type UploadEventRequest struct {
-	RaceName    string `thrift:"race_name,1,required" form:"race_name,required" json:"race_name,required" query:"race_name,required"`
-	RaceSponsor string `thrift:"race_sponsor,2,required" form:"race_sponsor,required" json:"race_sponsor,required" query:"race_sponsor,required"`
-	RaceTime    string `thrift:"race_time,3,required" form:"race_time,required" json:"race_time,required" query:"race_time,required"`
+	EventName    string `thrift:"event_name,1,required" form:"event_name,required" json:"event_name,required" query:"event_name,required"`
+	EventSponsor string `thrift:"event_sponsor,2,required" form:"event_sponsor,required" json:"event_sponsor,required" query:"event_sponsor,required"`
+	EventTime    string `thrift:"event_time,3,required" form:"event_time,required" json:"event_time,required" query:"event_time,required"`
+	AwardLevel   string `thrift:"award_level,4,required" form:"award_level,required" json:"award_level,required" query:"award_level,required"`
+	Id           string `thrift:"Id,5,required" form:"Id,required" json:"Id,required" query:"Id,required"`
 }
 
 func NewUploadEventRequest() *UploadEventRequest {
@@ -371,31 +373,43 @@ func NewUploadEventRequest() *UploadEventRequest {
 func (p *UploadEventRequest) InitDefault() {
 }
 
-func (p *UploadEventRequest) GetRaceName() (v string) {
-	return p.RaceName
+func (p *UploadEventRequest) GetEventName() (v string) {
+	return p.EventName
 }
 
-func (p *UploadEventRequest) GetRaceSponsor() (v string) {
-	return p.RaceSponsor
+func (p *UploadEventRequest) GetEventSponsor() (v string) {
+	return p.EventSponsor
 }
 
-func (p *UploadEventRequest) GetRaceTime() (v string) {
-	return p.RaceTime
+func (p *UploadEventRequest) GetEventTime() (v string) {
+	return p.EventTime
+}
+
+func (p *UploadEventRequest) GetAwardLevel() (v string) {
+	return p.AwardLevel
+}
+
+func (p *UploadEventRequest) GetId() (v string) {
+	return p.Id
 }
 
 var fieldIDToName_UploadEventRequest = map[int16]string{
-	1: "race_name",
-	2: "race_sponsor",
-	3: "race_time",
+	1: "event_name",
+	2: "event_sponsor",
+	3: "event_time",
+	4: "award_level",
+	5: "Id",
 }
 
 func (p *UploadEventRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
-	var issetRaceName bool = false
-	var issetRaceSponsor bool = false
-	var issetRaceTime bool = false
+	var issetEventName bool = false
+	var issetEventSponsor bool = false
+	var issetEventTime bool = false
+	var issetAwardLevel bool = false
+	var issetId bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -416,7 +430,7 @@ func (p *UploadEventRequest) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetRaceName = true
+				issetEventName = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -425,7 +439,7 @@ func (p *UploadEventRequest) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetRaceSponsor = true
+				issetEventSponsor = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -434,7 +448,25 @@ func (p *UploadEventRequest) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField3(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetRaceTime = true
+				issetEventTime = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 4:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField4(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetAwardLevel = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 5:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField5(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetId = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -451,18 +483,28 @@ func (p *UploadEventRequest) Read(iprot thrift.TProtocol) (err error) {
 		goto ReadStructEndError
 	}
 
-	if !issetRaceName {
+	if !issetEventName {
 		fieldId = 1
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetRaceSponsor {
+	if !issetEventSponsor {
 		fieldId = 2
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetRaceTime {
+	if !issetEventTime {
 		fieldId = 3
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetAwardLevel {
+		fieldId = 4
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetId {
+		fieldId = 5
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -491,7 +533,7 @@ func (p *UploadEventRequest) ReadField1(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.RaceName = _field
+	p.EventName = _field
 	return nil
 }
 func (p *UploadEventRequest) ReadField2(iprot thrift.TProtocol) error {
@@ -502,7 +544,7 @@ func (p *UploadEventRequest) ReadField2(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.RaceSponsor = _field
+	p.EventSponsor = _field
 	return nil
 }
 func (p *UploadEventRequest) ReadField3(iprot thrift.TProtocol) error {
@@ -513,7 +555,29 @@ func (p *UploadEventRequest) ReadField3(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.RaceTime = _field
+	p.EventTime = _field
+	return nil
+}
+func (p *UploadEventRequest) ReadField4(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.AwardLevel = _field
+	return nil
+}
+func (p *UploadEventRequest) ReadField5(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.Id = _field
 	return nil
 }
 
@@ -536,6 +600,14 @@ func (p *UploadEventRequest) Write(oprot thrift.TProtocol) (err error) {
 			fieldId = 3
 			goto WriteFieldError
 		}
+		if err = p.writeField4(oprot); err != nil {
+			fieldId = 4
+			goto WriteFieldError
+		}
+		if err = p.writeField5(oprot); err != nil {
+			fieldId = 5
+			goto WriteFieldError
+		}
 	}
 	if err = oprot.WriteFieldStop(); err != nil {
 		goto WriteFieldStopError
@@ -555,10 +627,10 @@ WriteStructEndError:
 }
 
 func (p *UploadEventRequest) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("race_name", thrift.STRING, 1); err != nil {
+	if err = oprot.WriteFieldBegin("event_name", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.RaceName); err != nil {
+	if err := oprot.WriteString(p.EventName); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -572,10 +644,10 @@ WriteFieldEndError:
 }
 
 func (p *UploadEventRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("race_sponsor", thrift.STRING, 2); err != nil {
+	if err = oprot.WriteFieldBegin("event_sponsor", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.RaceSponsor); err != nil {
+	if err := oprot.WriteString(p.EventSponsor); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -589,10 +661,10 @@ WriteFieldEndError:
 }
 
 func (p *UploadEventRequest) writeField3(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("race_time", thrift.STRING, 3); err != nil {
+	if err = oprot.WriteFieldBegin("event_time", thrift.STRING, 3); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.RaceTime); err != nil {
+	if err := oprot.WriteString(p.EventTime); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -603,6 +675,40 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
+}
+
+func (p *UploadEventRequest) writeField4(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("award_level", thrift.STRING, 4); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.AwardLevel); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
+}
+
+func (p *UploadEventRequest) writeField5(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("Id", thrift.STRING, 5); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Id); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 5 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
 }
 
 func (p *UploadEventRequest) String() string {

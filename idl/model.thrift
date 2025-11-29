@@ -60,21 +60,25 @@ struct ScoreRecordList{
      2: required i64 total,          //总数
      3: required double sum,
 }
-struct Appeal{
-    1:string appeal_id,
+struct Appeal {
+    1: string appeal_id,
     2: string result_id,
-    3: string user_id,
-    4: string appeal_type,
-    5:string appeal_reason,
-    6:string attachment_path,
-    7:string status,
-    8:string handleBy,
-    9:string handleTime
-    10:string handleResult,
-    11:i64 appeal_count
-        12: string created_at,        // 创建时间
-        13: string updated_at,        // 更新时间
-        14: string deleted_at         // 删除时
+    3: string event_id,
+    4: string user_id,
+    5: string appeal_type,
+    6: string event_name,
+    7: string award_level,
+    8: string appeal_reason,
+    9: double final_score,
+    10: string attachment_path,
+    11: string status,
+    12: string handleBy,
+    13: string handleTime,
+    14: string handleResult,
+    15: i64 appeal_count,
+    16: string created_at,
+    17: string updated_at,
+    18: string deleted_at
 }
 struct RecognizeReward{
         1: required string recognize_reward_id

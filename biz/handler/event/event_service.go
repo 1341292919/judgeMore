@@ -6,6 +6,7 @@ import (
 	"context"
 	"judgeMore/biz/pack"
 	"judgeMore/biz/service"
+	"judgeMore/biz/service/model"
 	"judgeMore/pkg/errno"
 
 	"github.com/cloudwego/hertz/pkg/app"
@@ -51,7 +52,14 @@ func UploadEvent(ctx context.Context, c *app.RequestContext) {
 	}
 
 	resp := new(event.UploadEventResponse)
-
+	id, err := service.NewEventService(ctx, c).UploadNewEvent(&model.Event{
+		Uid:            req.Id,
+		EventName:      req.EventName,
+		AwardContent:   req.AwardLevel,
+		EventOrganizer: req.EventSponsor,
+		AwardTime:      req.EventTime,
+	})
+	resp.EventID = id
 	resp.Base = pack.BuildBaseResp(errno.Success)
 	pack.SendResponse(c, resp)
 }

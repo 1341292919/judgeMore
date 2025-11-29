@@ -2887,23 +2887,24 @@ func (p *ScoreRecordList) String() string {
 }
 
 type Appeal struct {
-	AppealID       string `thrift:"appeal_id,1" form:"appeal_id" json:"appeal_id" query:"appeal_id"`
-	ResultID       string `thrift:"result_id,2" form:"result_id" json:"result_id" query:"result_id"`
-	UserID         string `thrift:"user_id,3" form:"user_id" json:"user_id" query:"user_id"`
-	AppealType     string `thrift:"appeal_type,4" form:"appeal_type" json:"appeal_type" query:"appeal_type"`
-	AppealReason   string `thrift:"appeal_reason,5" form:"appeal_reason" json:"appeal_reason" query:"appeal_reason"`
-	AttachmentPath string `thrift:"attachment_path,6" form:"attachment_path" json:"attachment_path" query:"attachment_path"`
-	Status         string `thrift:"status,7" form:"status" json:"status" query:"status"`
-	HandleBy       string `thrift:"handleBy,8" form:"handleBy" json:"handleBy" query:"handleBy"`
-	HandleTime     string `thrift:"handleTime,9" form:"handleTime" json:"handleTime" query:"handleTime"`
-	HandleResult   string `thrift:"handleResult,10" form:"handleResult" json:"handleResult" query:"handleResult"`
-	AppealCount    int64  `thrift:"appeal_count,11" form:"appeal_count" json:"appeal_count" query:"appeal_count"`
-	// 创建时间
-	CreatedAt string `thrift:"created_at,12" form:"created_at" json:"created_at" query:"created_at"`
-	// 更新时间
-	UpdatedAt string `thrift:"updated_at,13" form:"updated_at" json:"updated_at" query:"updated_at"`
-	// 删除时
-	DeletedAt string `thrift:"deleted_at,14" form:"deleted_at" json:"deleted_at" query:"deleted_at"`
+	AppealID       string  `thrift:"appeal_id,1" form:"appeal_id" json:"appeal_id" query:"appeal_id"`
+	ResultID       string  `thrift:"result_id,2" form:"result_id" json:"result_id" query:"result_id"`
+	EventID        string  `thrift:"event_id,3" form:"event_id" json:"event_id" query:"event_id"`
+	UserID         string  `thrift:"user_id,4" form:"user_id" json:"user_id" query:"user_id"`
+	AppealType     string  `thrift:"appeal_type,5" form:"appeal_type" json:"appeal_type" query:"appeal_type"`
+	EventName      string  `thrift:"event_name,6" form:"event_name" json:"event_name" query:"event_name"`
+	AwardLevel     string  `thrift:"award_level,7" form:"award_level" json:"award_level" query:"award_level"`
+	AppealReason   string  `thrift:"appeal_reason,8" form:"appeal_reason" json:"appeal_reason" query:"appeal_reason"`
+	FinalScore     float64 `thrift:"final_score,9" form:"final_score" json:"final_score" query:"final_score"`
+	AttachmentPath string  `thrift:"attachment_path,10" form:"attachment_path" json:"attachment_path" query:"attachment_path"`
+	Status         string  `thrift:"status,11" form:"status" json:"status" query:"status"`
+	HandleBy       string  `thrift:"handleBy,12" form:"handleBy" json:"handleBy" query:"handleBy"`
+	HandleTime     string  `thrift:"handleTime,13" form:"handleTime" json:"handleTime" query:"handleTime"`
+	HandleResult   string  `thrift:"handleResult,14" form:"handleResult" json:"handleResult" query:"handleResult"`
+	AppealCount    int64   `thrift:"appeal_count,15" form:"appeal_count" json:"appeal_count" query:"appeal_count"`
+	CreatedAt      string  `thrift:"created_at,16" form:"created_at" json:"created_at" query:"created_at"`
+	UpdatedAt      string  `thrift:"updated_at,17" form:"updated_at" json:"updated_at" query:"updated_at"`
+	DeletedAt      string  `thrift:"deleted_at,18" form:"deleted_at" json:"deleted_at" query:"deleted_at"`
 }
 
 func NewAppeal() *Appeal {
@@ -2921,6 +2922,10 @@ func (p *Appeal) GetResultID() (v string) {
 	return p.ResultID
 }
 
+func (p *Appeal) GetEventID() (v string) {
+	return p.EventID
+}
+
 func (p *Appeal) GetUserID() (v string) {
 	return p.UserID
 }
@@ -2929,8 +2934,20 @@ func (p *Appeal) GetAppealType() (v string) {
 	return p.AppealType
 }
 
+func (p *Appeal) GetEventName() (v string) {
+	return p.EventName
+}
+
+func (p *Appeal) GetAwardLevel() (v string) {
+	return p.AwardLevel
+}
+
 func (p *Appeal) GetAppealReason() (v string) {
 	return p.AppealReason
+}
+
+func (p *Appeal) GetFinalScore() (v float64) {
+	return p.FinalScore
 }
 
 func (p *Appeal) GetAttachmentPath() (v string) {
@@ -2972,18 +2989,22 @@ func (p *Appeal) GetDeletedAt() (v string) {
 var fieldIDToName_Appeal = map[int16]string{
 	1:  "appeal_id",
 	2:  "result_id",
-	3:  "user_id",
-	4:  "appeal_type",
-	5:  "appeal_reason",
-	6:  "attachment_path",
-	7:  "status",
-	8:  "handleBy",
-	9:  "handleTime",
-	10: "handleResult",
-	11: "appeal_count",
-	12: "created_at",
-	13: "updated_at",
-	14: "deleted_at",
+	3:  "event_id",
+	4:  "user_id",
+	5:  "appeal_type",
+	6:  "event_name",
+	7:  "award_level",
+	8:  "appeal_reason",
+	9:  "final_score",
+	10: "attachment_path",
+	11: "status",
+	12: "handleBy",
+	13: "handleTime",
+	14: "handleResult",
+	15: "appeal_count",
+	16: "created_at",
+	17: "updated_at",
+	18: "deleted_at",
 }
 
 func (p *Appeal) Read(iprot thrift.TProtocol) (err error) {
@@ -3070,7 +3091,7 @@ func (p *Appeal) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 9:
-			if fieldTypeId == thrift.STRING {
+			if fieldTypeId == thrift.DOUBLE {
 				if err = p.ReadField9(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -3086,7 +3107,7 @@ func (p *Appeal) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 11:
-			if fieldTypeId == thrift.I64 {
+			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField11(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -3112,6 +3133,38 @@ func (p *Appeal) Read(iprot thrift.TProtocol) (err error) {
 		case 14:
 			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField14(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 15:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField15(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 16:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField16(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 17:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField17(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 18:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField18(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
@@ -3176,7 +3229,7 @@ func (p *Appeal) ReadField3(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.UserID = _field
+	p.EventID = _field
 	return nil
 }
 func (p *Appeal) ReadField4(iprot thrift.TProtocol) error {
@@ -3187,7 +3240,7 @@ func (p *Appeal) ReadField4(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.AppealType = _field
+	p.UserID = _field
 	return nil
 }
 func (p *Appeal) ReadField5(iprot thrift.TProtocol) error {
@@ -3198,7 +3251,7 @@ func (p *Appeal) ReadField5(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.AppealReason = _field
+	p.AppealType = _field
 	return nil
 }
 func (p *Appeal) ReadField6(iprot thrift.TProtocol) error {
@@ -3209,7 +3262,7 @@ func (p *Appeal) ReadField6(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.AttachmentPath = _field
+	p.EventName = _field
 	return nil
 }
 func (p *Appeal) ReadField7(iprot thrift.TProtocol) error {
@@ -3220,7 +3273,7 @@ func (p *Appeal) ReadField7(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.Status = _field
+	p.AwardLevel = _field
 	return nil
 }
 func (p *Appeal) ReadField8(iprot thrift.TProtocol) error {
@@ -3231,18 +3284,18 @@ func (p *Appeal) ReadField8(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.HandleBy = _field
+	p.AppealReason = _field
 	return nil
 }
 func (p *Appeal) ReadField9(iprot thrift.TProtocol) error {
 
-	var _field string
-	if v, err := iprot.ReadString(); err != nil {
+	var _field float64
+	if v, err := iprot.ReadDouble(); err != nil {
 		return err
 	} else {
 		_field = v
 	}
-	p.HandleTime = _field
+	p.FinalScore = _field
 	return nil
 }
 func (p *Appeal) ReadField10(iprot thrift.TProtocol) error {
@@ -3253,18 +3306,18 @@ func (p *Appeal) ReadField10(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.HandleResult = _field
+	p.AttachmentPath = _field
 	return nil
 }
 func (p *Appeal) ReadField11(iprot thrift.TProtocol) error {
 
-	var _field int64
-	if v, err := iprot.ReadI64(); err != nil {
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
 		_field = v
 	}
-	p.AppealCount = _field
+	p.Status = _field
 	return nil
 }
 func (p *Appeal) ReadField12(iprot thrift.TProtocol) error {
@@ -3275,7 +3328,7 @@ func (p *Appeal) ReadField12(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.CreatedAt = _field
+	p.HandleBy = _field
 	return nil
 }
 func (p *Appeal) ReadField13(iprot thrift.TProtocol) error {
@@ -3286,10 +3339,54 @@ func (p *Appeal) ReadField13(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.UpdatedAt = _field
+	p.HandleTime = _field
 	return nil
 }
 func (p *Appeal) ReadField14(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.HandleResult = _field
+	return nil
+}
+func (p *Appeal) ReadField15(iprot thrift.TProtocol) error {
+
+	var _field int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.AppealCount = _field
+	return nil
+}
+func (p *Appeal) ReadField16(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.CreatedAt = _field
+	return nil
+}
+func (p *Appeal) ReadField17(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.UpdatedAt = _field
+	return nil
+}
+func (p *Appeal) ReadField18(iprot thrift.TProtocol) error {
 
 	var _field string
 	if v, err := iprot.ReadString(); err != nil {
@@ -3364,6 +3461,22 @@ func (p *Appeal) Write(oprot thrift.TProtocol) (err error) {
 			fieldId = 14
 			goto WriteFieldError
 		}
+		if err = p.writeField15(oprot); err != nil {
+			fieldId = 15
+			goto WriteFieldError
+		}
+		if err = p.writeField16(oprot); err != nil {
+			fieldId = 16
+			goto WriteFieldError
+		}
+		if err = p.writeField17(oprot); err != nil {
+			fieldId = 17
+			goto WriteFieldError
+		}
+		if err = p.writeField18(oprot); err != nil {
+			fieldId = 18
+			goto WriteFieldError
+		}
 	}
 	if err = oprot.WriteFieldStop(); err != nil {
 		goto WriteFieldStopError
@@ -3417,10 +3530,10 @@ WriteFieldEndError:
 }
 
 func (p *Appeal) writeField3(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("user_id", thrift.STRING, 3); err != nil {
+	if err = oprot.WriteFieldBegin("event_id", thrift.STRING, 3); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.UserID); err != nil {
+	if err := oprot.WriteString(p.EventID); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -3434,10 +3547,10 @@ WriteFieldEndError:
 }
 
 func (p *Appeal) writeField4(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("appeal_type", thrift.STRING, 4); err != nil {
+	if err = oprot.WriteFieldBegin("user_id", thrift.STRING, 4); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.AppealType); err != nil {
+	if err := oprot.WriteString(p.UserID); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -3451,10 +3564,10 @@ WriteFieldEndError:
 }
 
 func (p *Appeal) writeField5(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("appeal_reason", thrift.STRING, 5); err != nil {
+	if err = oprot.WriteFieldBegin("appeal_type", thrift.STRING, 5); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.AppealReason); err != nil {
+	if err := oprot.WriteString(p.AppealType); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -3468,10 +3581,10 @@ WriteFieldEndError:
 }
 
 func (p *Appeal) writeField6(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("attachment_path", thrift.STRING, 6); err != nil {
+	if err = oprot.WriteFieldBegin("event_name", thrift.STRING, 6); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.AttachmentPath); err != nil {
+	if err := oprot.WriteString(p.EventName); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -3485,10 +3598,10 @@ WriteFieldEndError:
 }
 
 func (p *Appeal) writeField7(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("status", thrift.STRING, 7); err != nil {
+	if err = oprot.WriteFieldBegin("award_level", thrift.STRING, 7); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.Status); err != nil {
+	if err := oprot.WriteString(p.AwardLevel); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -3502,10 +3615,10 @@ WriteFieldEndError:
 }
 
 func (p *Appeal) writeField8(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("handleBy", thrift.STRING, 8); err != nil {
+	if err = oprot.WriteFieldBegin("appeal_reason", thrift.STRING, 8); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.HandleBy); err != nil {
+	if err := oprot.WriteString(p.AppealReason); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -3519,10 +3632,10 @@ WriteFieldEndError:
 }
 
 func (p *Appeal) writeField9(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("handleTime", thrift.STRING, 9); err != nil {
+	if err = oprot.WriteFieldBegin("final_score", thrift.DOUBLE, 9); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.HandleTime); err != nil {
+	if err := oprot.WriteDouble(p.FinalScore); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -3536,10 +3649,10 @@ WriteFieldEndError:
 }
 
 func (p *Appeal) writeField10(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("handleResult", thrift.STRING, 10); err != nil {
+	if err = oprot.WriteFieldBegin("attachment_path", thrift.STRING, 10); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.HandleResult); err != nil {
+	if err := oprot.WriteString(p.AttachmentPath); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -3553,10 +3666,10 @@ WriteFieldEndError:
 }
 
 func (p *Appeal) writeField11(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("appeal_count", thrift.I64, 11); err != nil {
+	if err = oprot.WriteFieldBegin("status", thrift.STRING, 11); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.AppealCount); err != nil {
+	if err := oprot.WriteString(p.Status); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -3570,10 +3683,10 @@ WriteFieldEndError:
 }
 
 func (p *Appeal) writeField12(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("created_at", thrift.STRING, 12); err != nil {
+	if err = oprot.WriteFieldBegin("handleBy", thrift.STRING, 12); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.CreatedAt); err != nil {
+	if err := oprot.WriteString(p.HandleBy); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -3587,10 +3700,10 @@ WriteFieldEndError:
 }
 
 func (p *Appeal) writeField13(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("updated_at", thrift.STRING, 13); err != nil {
+	if err = oprot.WriteFieldBegin("handleTime", thrift.STRING, 13); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.UpdatedAt); err != nil {
+	if err := oprot.WriteString(p.HandleTime); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -3604,10 +3717,10 @@ WriteFieldEndError:
 }
 
 func (p *Appeal) writeField14(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("deleted_at", thrift.STRING, 14); err != nil {
+	if err = oprot.WriteFieldBegin("handleResult", thrift.STRING, 14); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.DeletedAt); err != nil {
+	if err := oprot.WriteString(p.HandleResult); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -3618,6 +3731,74 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 14 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 14 end error: ", p), err)
+}
+
+func (p *Appeal) writeField15(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("appeal_count", thrift.I64, 15); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.AppealCount); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 15 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 15 end error: ", p), err)
+}
+
+func (p *Appeal) writeField16(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("created_at", thrift.STRING, 16); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.CreatedAt); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 16 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 16 end error: ", p), err)
+}
+
+func (p *Appeal) writeField17(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("updated_at", thrift.STRING, 17); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.UpdatedAt); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 17 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 17 end error: ", p), err)
+}
+
+func (p *Appeal) writeField18(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("deleted_at", thrift.STRING, 18); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.DeletedAt); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 18 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 18 end error: ", p), err)
 }
 
 func (p *Appeal) String() string {

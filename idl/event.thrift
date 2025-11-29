@@ -10,9 +10,11 @@ struct UploadEventFileResponse{
 }
 
 struct UploadEventRequest{
-     1: required string race_name,
-     2: required string race_sponsor,
-     3: required string race_time,
+     1: required string event_name,
+     2: required string event_sponsor,
+     3: required string event_time,
+     4: required string award_level,
+     5: required string Id,
 }
 struct UploadEventResponse{
      1: required model.BaseResp base,

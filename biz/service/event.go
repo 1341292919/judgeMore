@@ -197,6 +197,23 @@ func (svc *EventService) UpdateEventLevel(event_id string, level string, appeal_
 	return nil
 }
 
+func (svc *EventService) UploadNewEvent(event *model.Event) (string, error) {
+	exist, err := mysql.IsUserExist(svc.ctx, &model.User{Uid: event.Uid})
+	if err != nil {
+		return "", err
+	}
+	if !exist {
+		return "", errno.NewErrNo(errno.ServiceUserNotExistCode, "user not exist")
+	}
+	event.RecognizeId = "0"
+	event_id, err := mysql.CreateNewEvent(svc.ctx, event)
+	if err != nil {
+		return "", err
+	}
+	event.EventId = event_id
+	taskqueue.AddEventStorageTask(svc.ctx, constants.EventKey, event)
+	return event_id, nil
+}
 func CheckEvent(ctx context.Context, eventInfo *model.Event) error {
 	req := &model.ViewRecognizedRewardReq{
 		EventName:     &eventInfo.EventName,
