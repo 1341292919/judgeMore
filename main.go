@@ -3,14 +3,16 @@
 package main
 
 import (
-	"github.com/bytedance/gopkg/util/logger"
-	"github.com/cloudwego/hertz/pkg/app/server"
 	"judgeMore/biz/dal"
 	"judgeMore/biz/mw/jwt"
 	"judgeMore/biz/router"
 	"judgeMore/biz/service"
 	"judgeMore/config"
 	"judgeMore/pkg/utils"
+
+	"github.com/bytedance/gopkg/util/logger"
+	"github.com/cloudwego/hertz/pkg/app/server"
+	"github.com/hertz-contrib/cors"
 )
 
 func init() {
@@ -28,6 +30,16 @@ func main() {
 		server.WithHostPorts(listenAddr),
 		server.WithHandleMethodNotAllowed(true),
 	)
+
+	h.Use(cors.New(cors.Config{
+		AllowOrigins:  []string{"*"},
+		AllowMethods:  []string{"*"},
+		AllowHeaders:  []string{"*"},
+		ExposeHeaders: []string{"Access-Token", "Refresh-Token"},
+		MaxAge:        86400,
+		AllowWildcard: true,
+	}))
+
 	router.GeneratedRegister(h)
 	h.Spin()
 }
