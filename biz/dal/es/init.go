@@ -2,7 +2,7 @@ package es
 
 import (
 	"github.com/olivere/elastic/v7"
-	client "judgeMore/pkg/base"
+	"judgeMore/pkg/base/client"
 )
 
 var els *elastic.Client
