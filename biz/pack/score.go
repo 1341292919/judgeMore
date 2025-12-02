@@ -3,6 +3,7 @@ package pack
 import (
 	resp "judgeMore/biz/model/model"
 	"judgeMore/biz/service/model"
+	"sort"
 	"strconv"
 )
 
@@ -45,10 +46,16 @@ func StuScoreMessage(data *model.StuScoreMessage) *resp.StuScoreMessage {
 	}
 }
 func StuScoreMessageList(data []*model.StuScoreMessage, c int64) *resp.StuScoreMessageList {
-	info := make([]*resp.StuScoreMessage, 0)
+	info := make([]*resp.StuScoreMessage, 0, len(data))
 	for _, v := range data {
 		info = append(info, StuScoreMessage(v))
 	}
+
+	// 按 Score 从高到低排序
+	sort.Slice(info, func(i, j int) bool {
+		return info[i].Score > info[j].Score
+	})
+
 	return &resp.StuScoreMessageList{
 		Item:  info,
 		Total: c,
